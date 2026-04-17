@@ -147,7 +147,7 @@
             state.bookings.push(b); localStorage.setItem('ina_b', JSON.stringify(state.bookings));
             const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${s}`;
             const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            alert("資訊已複製！請至 Line 貼上訊息"); window.location.href = LINE_URL;
+            alert("資訊已複製！請至 Line 貼上複製的訊息並送出，完成預約喔"); window.location.href = LINE_URL;
         }
         function changeMonth(n) { viewDate.setMonth(viewDate.getMonth()+n); renderCalendar(); }
         function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }

@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ina以娜·美睫 | 預約系統</title>
+    <title>ina以娜 | 預約系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --milk-tea-bg: #f8f1eb; --milk-tea-card: rgba(255, 255, 255, 0.9); --milk-tea-accent: #c6ac8f; --milk-tea-dark: #5e503f; --milk-tea-weekend: #d88b70; }
+        :root { --milk-tea-bg: #f8f1eb; --milk-tea-card: rgba(255, 255, 255, 0.9); --milk-tea-accent: #c6ac8f; --milk-tea-dark: #5e503f; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--milk-tea-bg); color: var(--milk-tea-dark); min-height: 100vh; }
         .ins-card { background: var(--milk-tea-card); backdrop-filter: blur(15px); border-radius: 32px; box-shadow: 0 20px 40px rgba(94, 80, 63, 0.06); }
         .step-active { color: var(--milk-tea-dark); font-weight: 700; border-bottom: 2px solid var(--milk-tea-dark); }
-        .btn-main { background-color: var(--milk-tea-accent); color: white; transition: all 0.3s; }
+        .btn-main { background-color: var(--milk-tea-accent); color: white; transition: 0.3s; }
         .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; }
         .calendar-day.selected { background-color: var(--milk-tea-dark); color: white !important; }
         .calendar-day.disabled { opacity: 0.15; cursor: not-allowed; }
-        .time-slot { border: 1px solid #eee; transition: 0.2s; }
+        .time-slot { border: 1px solid #eee; }
         .time-slot.selected { background-color: var(--milk-tea-dark) !important; color: white !important; }
         .time-slot.booked { background-color: #f5f5f5; color: #d1d1d1; cursor: not-allowed; text-decoration: line-through; }
+        input[type="checkbox"] { accent-color: var(--milk-tea-accent); width: 1.2rem; height: 1.2rem; }
     </style>
 </head>
 <body class="p-4">
@@ -31,10 +32,11 @@
             <span id="step-1" class="step-active pb-1">01. 日期</span><span id="step-2" class="pb-1">02. 時段</span><span id="step-3" class="pb-1">03. 資料</span>
         </nav>
 
+        <!-- View 1: Date -->
         <section id="view-date">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-lg font-medium">選擇預約日期</h2>
-                <div class="flex items-center gap-4 text-sm font-bold">
+                <div class="flex items-center gap-4 font-bold text-sm">
                     <button onclick="changeMonth(-1)">‹</button><p id="current-month-display"></p><button onclick="changeMonth(1)">›</button>
                 </div>
             </div>
@@ -42,6 +44,7 @@
             <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
         </section>
 
+        <!-- View 2: Time -->
         <section id="view-time" class="hidden">
             <h2 class="text-lg font-medium mb-1">選擇時段</h2>
             <p id="time-hint" class="text-[10px] opacity-50 mb-8"></p>
@@ -52,32 +55,70 @@
             </div>
         </section>
 
+        <!-- View 3: Info -->
         <section id="view-info" class="hidden">
-            <h2 class="text-lg font-medium mb-1">確認預約</h2>
+            <h2 class="text-lg font-medium mb-1">預約資料</h2>
             <div class="bg-stone-50 p-5 rounded-2xl mb-8 border border-stone-100 text-sm">
                 <p class="text-[9px] opacity-40 uppercase">已選時間</p><p id="final-selection"></p>
             </div>
-            <div class="space-y-6">
-                <input type="text" id="cust-name" placeholder="您的稱呼" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
-                <select id="service-select" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
-                    <option value="經典單根">經典單根</option><option value="柔密款">柔密款</option><option value="小紅書設計款">小紅書設計款</option><option value="新中式美睫設計款">新中式美睫設計款</option>
-                </select>
+            <div class="space-y-8">
+                <div>
+                    <label class="block text-[10px] opacity-40 mb-2">您的稱呼</label>
+                    <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] opacity-40 mb-3">睫毛款式 (必選一項)</label>
+                    <select id="service-select" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
+                        <option value="經典單根">經典單根</option>
+                        <option value="柔密款">柔密款</option>
+                        <option value="小紅書設計款">小紅書設計款</option>
+                        <option value="新中式美睫設計款">新中式美睫設計款</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] opacity-40 mb-3">加購服務 (複選)</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 cursor-pointer text-sm">
+                            <input type="checkbox" value="下睫毛" class="addon-check"> <span>下睫毛</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] opacity-40 mb-3">卸除服務 (複選)</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3"><input type="checkbox" value="本店卸除($200)" class="addon-check"><span>本店卸除</span></div><span class="opacity-40">$200</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3"><input type="checkbox" value="本店卸除重接(Free)" class="addon-check"><span>本店卸除重接</span></div><span class="opacity-40 text-stone-400">Free</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3"><input type="checkbox" value="他店卸除($400)" class="addon-check"><span>他店卸除</span></div><span class="opacity-40">$400</span>
+                        </label>
+                        <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
+                            <div class="flex items-center gap-3"><input type="checkbox" value="他店卸除重接($300)" class="addon-check"><span>他店卸除重接</span></div><span class="opacity-40">$300</span>
+                        </label>
+                    </div>
+                </div>
+
                 <button onclick="finishBooking()" class="w-full btn-main py-4 rounded-full text-[11px] font-bold">確認預約並跳轉 Line</button>
             </div>
         </section>
     </main>
 
-    <!-- 管理員彈窗 -->
+    <!-- 管理員 -->
     <div id="admin-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[32px] w-full max-w-md p-8">
             <div id="admin-auth">
                 <h3 class="text-lg mb-6 text-center">管理員登入</h3>
                 <input type="password" id="admin-pwd-input" class="w-full border-b mb-6 text-center p-2 focus:outline-none">
                 <button onclick="verifyAdmin()" class="w-full btn-main py-3 rounded-xl">驗證</button>
-                <button onclick="closeAdmin()" class="w-full py-3 text-xs opacity-40">取消</button>
             </div>
             <div id="admin-content" class="hidden">
-                <h3 class="font-medium mb-6">預約管理</h3>
+                <h3 class="font-medium mb-6">預約清單</h3>
                 <div id="booking-list" class="space-y-3 max-h-[400px] overflow-y-auto"></div>
                 <button onclick="closeAdmin()" class="w-full mt-6 py-3 text-xs opacity-40">關閉</button>
             </div>
@@ -85,21 +126,14 @@
     </div>
 
     <script>
-        const ADMIN_PWD = "0813"; 
-        const LINE_URL = "https://lin.ee/8nG0CEA";
-        
+        const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         let viewDate = new Date(2026, 3, 1);
         const MIN_D = new Date(2026, 3, 26), MAX_D = new Date(2026, 4, 31);
-        
-        // 更新後的封鎖時段
         const OFF = {
-            "2026-04-26": "FULL", 
-            "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
-            "2026-04-28": "FULL", 
-            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
+            "2026-04-26": "FULL", "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
+            "2026-04-28": "FULL", "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
             "2026-04-30": "FULL", "2026-05-01": "FULL", "2026-05-02": "FULL", "2026-05-03": "FULL"
         };
-        
         let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
 
         function renderCalendar() {
@@ -142,27 +176,23 @@
         }
 
         function finishBooking() {
-            const n = document.getElementById('cust-name').value; 
-            if (!n) return alert("請填寫稱呼");
+            const n = document.getElementById('cust-name').value; if (!n) return alert("請填寫稱呼");
             const s = document.getElementById('service-select').value;
-            const b = { id:Date.now(), name:n, date:state.currentDate, time:state.currentTime, service:s };
-            state.bookings.push(b); 
-            localStorage.setItem('ina_b', JSON.stringify(state.bookings));
+            const addons = Array.from(document.querySelectorAll('.addon-check:checked')).map(cb => cb.value);
+            const combinedServices = [s, ...addons].join(' + ');
             
-            // 複製訊息
-            const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${s}`;
+            const b = { id:Date.now(), name:n, date:state.currentDate, time:state.currentTime, service:combinedServices };
+            state.bookings.push(b); localStorage.setItem('ina_b', JSON.stringify(state.bookings));
+            
+            const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${combinedServices}`;
             const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             
-            // 彈出優化後的視窗文字
-            alert("預約資訊已複製！請至 Line 貼上並送出"); 
-            window.location.href = LINE_URL;
+            alert("預約資訊已複製！請至 Line 貼上並送出"); window.location.href = LINE_URL;
         }
 
         function goToView(v) {
             ['date','time','info'].forEach(i => document.getElementById('view-'+i).classList.add('hidden'));
             document.getElementById('view-'+v).classList.remove('hidden');
-            ['1','2','3'].forEach(i => document.getElementById('step-'+i).classList.remove('step-active'));
-            document.getElementById('step-'+(v==='date'?'1':v==='time'?'2':'3')).classList.add('step-active');
             if (v==='info') document.getElementById('final-selection').innerText = `${state.currentDate} ${state.currentTime}`;
         }
         function changeMonth(n) { viewDate.setMonth(viewDate.getMonth()+n); renderCalendar(); }
@@ -172,8 +202,8 @@
         function renderList() {
             const l = document.getElementById('booking-list'); l.innerHTML = '';
             state.bookings.forEach(b => {
-                const d = document.createElement('div'); d.className = "bg-stone-50 p-3 rounded-xl flex justify-between text-xs mb-2 border";
-                d.innerHTML = `<div><p class="font-bold">${b.date} ${b.time}</p><p>${b.name} - ${b.service}</p></div><button onclick="del(${b.id})" class="text-red-400">刪除</button>`;
+                const d = document.createElement('div'); d.className = "bg-stone-50 p-3 rounded-xl flex justify-between text-[10px] mb-2 border";
+                d.innerHTML = `<div><p class="font-bold">${b.date} ${b.time}</p><p>${b.name} - ${b.service}</p></div><button onclick="del(${b.id})" class="text-red-400 ml-2">刪</button>`;
                 l.appendChild(d);
             });
         }
@@ -182,5 +212,4 @@
     </script>
 </body>
 </html>
-
 

@@ -12,9 +12,7 @@
         .ins-card { background: var(--milk-tea-card); backdrop-filter: blur(15px); border-radius: 32px; box-shadow: 0 20px 40px rgba(94, 80, 63, 0.06); }
         .step-active { color: var(--milk-tea-dark); font-weight: 700; border-bottom: 2px solid var(--milk-tea-dark); }
         .btn-main { background-color: var(--milk-tea-accent); color: white; transition: all 0.3s; }
-        .btn-main:hover { background-color: var(--milk-tea-dark); }
         .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; }
-        .day-today::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background-color: var(--milk-tea-accent); border-radius: 50%; }
         .calendar-day.selected { background-color: var(--milk-tea-dark); color: white !important; }
         .calendar-day.disabled { opacity: 0.15; cursor: not-allowed; }
         .time-slot { border: 1px solid #eee; transition: 0.2s; }
@@ -69,6 +67,7 @@
         </section>
     </main>
 
+    <!-- 管理員彈窗 -->
     <div id="admin-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[32px] w-full max-w-md p-8">
             <div id="admin-auth">
@@ -86,14 +85,21 @@
     </div>
 
     <script>
-        const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
+        const ADMIN_PWD = "0813"; 
+        const LINE_URL = "https://lin.ee/8nG0CEA";
+        
         let viewDate = new Date(2026, 3, 1);
         const MIN_D = new Date(2026, 3, 26), MAX_D = new Date(2026, 4, 31);
+        
+        // 更新後的封鎖時段
         const OFF = {
-            "2026-04-26": "FULL", "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
-            "2026-04-28": "FULL", "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
+            "2026-04-26": "FULL", 
+            "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
+            "2026-04-28": "FULL", 
+            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
             "2026-04-30": "FULL", "2026-05-01": "FULL", "2026-05-02": "FULL", "2026-05-03": "FULL"
         };
+        
         let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
 
         function renderCalendar() {
@@ -114,6 +120,7 @@
                 grid.appendChild(el);
             }
         }
+
         function renderTime() {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             const d = new Date(state.currentDate); const isW = d.getDay()===0||d.getDay()===6;
@@ -133,21 +140,30 @@
                 });
             }
         }
+
+        function finishBooking() {
+            const n = document.getElementById('cust-name').value; 
+            if (!n) return alert("請填寫稱呼");
+            const s = document.getElementById('service-select').value;
+            const b = { id:Date.now(), name:n, date:state.currentDate, time:state.currentTime, service:s };
+            state.bookings.push(b); 
+            localStorage.setItem('ina_b', JSON.stringify(state.bookings));
+            
+            // 複製訊息
+            const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${s}`;
+            const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            
+            // 彈出優化後的視窗文字
+            alert("預約資訊已複製！請至 Line 貼上並送出"); 
+            window.location.href = LINE_URL;
+        }
+
         function goToView(v) {
             ['date','time','info'].forEach(i => document.getElementById('view-'+i).classList.add('hidden'));
             document.getElementById('view-'+v).classList.remove('hidden');
             ['1','2','3'].forEach(i => document.getElementById('step-'+i).classList.remove('step-active'));
             document.getElementById('step-'+(v==='date'?'1':v==='time'?'2':'3')).classList.add('step-active');
             if (v==='info') document.getElementById('final-selection').innerText = `${state.currentDate} ${state.currentTime}`;
-        }
-        function finishBooking() {
-            const n = document.getElementById('cust-name').value; if (!n) return alert("請填寫稱呼");
-            const s = document.getElementById('service-select').value;
-            const b = { id:Date.now(), name:n, date:state.currentDate, time:state.currentTime, service:s };
-            state.bookings.push(b); localStorage.setItem('ina_b', JSON.stringify(state.bookings));
-            const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${s}`;
-            const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            alert("資訊已複製！請至 Line 貼上訊息並送出，完成預約喔"); window.location.href = LINE_URL;
         }
         function changeMonth(n) { viewDate.setMonth(viewDate.getMonth()+n); renderCalendar(); }
         function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }
@@ -167,4 +183,4 @@
 </body>
 </html>
 
-
+```

@@ -1,0 +1,171 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ina以娜·美睫 | 預約系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --milk-tea-bg: #f8f1eb; --milk-tea-card: rgba(255, 255, 255, 0.9); --milk-tea-accent: #c6ac8f; --milk-tea-dark: #5e503f; --milk-tea-weekend: #d88b70; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--milk-tea-bg); color: var(--milk-tea-dark); min-height: 100vh; }
+        .ins-card { background: var(--milk-tea-card); backdrop-filter: blur(15px); border-radius: 32px; box-shadow: 0 20px 40px rgba(94, 80, 63, 0.06); }
+        .step-active { color: var(--milk-tea-dark); font-weight: 700; border-bottom: 2px solid var(--milk-tea-dark); }
+        .btn-main { background-color: var(--milk-tea-accent); color: white; transition: all 0.3s; }
+        .btn-main:hover { background-color: var(--milk-tea-dark); }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; }
+        .day-today::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background-color: var(--milk-tea-accent); border-radius: 50%; }
+        .calendar-day.selected { background-color: var(--milk-tea-dark); color: white !important; }
+        .calendar-day.disabled { opacity: 0.15; cursor: not-allowed; }
+        .time-slot { border: 1px solid #eee; transition: 0.2s; }
+        .time-slot.selected { background-color: var(--milk-tea-dark) !important; color: white !important; }
+        .time-slot.booked { background-color: #f5f5f5; color: #d1d1d1; cursor: not-allowed; text-decoration: line-through; }
+    </style>
+</head>
+<body class="p-4">
+    <header class="max-w-xl mx-auto flex justify-between items-end mb-8">
+        <div><h1 class="text-3xl font-light tracking-widest text-stone-800">ina</h1><p class="text-[10px] tracking-widest opacity-50">以娜·美睫</p></div>
+        <button onclick="openAdmin()" class="text-[10px] opacity-40">ADMIN</button>
+    </header>
+
+    <main class="max-w-xl mx-auto ins-card p-6 md:p-10 mb-10">
+        <nav class="flex justify-between mb-10 text-[9px] text-stone-400 uppercase">
+            <span id="step-1" class="step-active pb-1">01. 日期</span><span id="step-2" class="pb-1">02. 時段</span><span id="step-3" class="pb-1">03. 資料</span>
+        </nav>
+
+        <section id="view-date">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-medium">選擇預約日期</h2>
+                <div class="flex items-center gap-4 text-sm font-bold">
+                    <button onclick="changeMonth(-1)">‹</button><p id="current-month-display"></p><button onclick="changeMonth(1)">›</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-[10px] mb-4 opacity-40"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+        </section>
+
+        <section id="view-time" class="hidden">
+            <h2 class="text-lg font-medium mb-1">選擇時段</h2>
+            <p id="time-hint" class="text-[10px] opacity-50 mb-8"></p>
+            <div id="time-grid" class="grid grid-cols-3 gap-3"></div>
+            <div class="mt-12 flex justify-between items-center">
+                <button onclick="goToView('date')" class="text-xs opacity-40">← 返回</button>
+                <button id="btn-to-info" onclick="goToView('info')" disabled class="btn-main px-12 py-3 rounded-full text-[11px] disabled:opacity-30">下一步</button>
+            </div>
+        </section>
+
+        <section id="view-info" class="hidden">
+            <h2 class="text-lg font-medium mb-1">確認預約</h2>
+            <div class="bg-stone-50 p-5 rounded-2xl mb-8 border border-stone-100 text-sm">
+                <p class="text-[9px] opacity-40 uppercase">已選時間</p><p id="final-selection"></p>
+            </div>
+            <div class="space-y-6">
+                <input type="text" id="cust-name" placeholder="您的稱呼" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
+                <select id="service-select" class="w-full bg-transparent border-b border-stone-200 py-2 text-sm focus:outline-none">
+                    <option value="經典單根">經典單根</option><option value="柔密款">柔密款</option><option value="小紅書設計款">小紅書設計款</option><option value="新中式美睫設計款">新中式美睫設計款</option>
+                </select>
+                <button onclick="finishBooking()" class="w-full btn-main py-4 rounded-full text-[11px] font-bold">確認預約並跳轉 Line</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="admin-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] w-full max-w-md p-8">
+            <div id="admin-auth">
+                <h3 class="text-lg mb-6 text-center">管理員登入</h3>
+                <input type="password" id="admin-pwd-input" class="w-full border-b mb-6 text-center p-2 focus:outline-none">
+                <button onclick="verifyAdmin()" class="w-full btn-main py-3 rounded-xl">驗證</button>
+                <button onclick="closeAdmin()" class="w-full py-3 text-xs opacity-40">取消</button>
+            </div>
+            <div id="admin-content" class="hidden">
+                <h3 class="font-medium mb-6">預約管理</h3>
+                <div id="booking-list" class="space-y-3 max-h-[400px] overflow-y-auto"></div>
+                <button onclick="closeAdmin()" class="w-full mt-6 py-3 text-xs opacity-40">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
+        let viewDate = new Date(2026, 3, 1);
+        const MIN_D = new Date(2026, 3, 26), MAX_D = new Date(2026, 4, 31);
+        const OFF = {
+            "2026-04-26": "FULL", "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
+            "2026-04-28": "FULL", "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
+            "2026-04-30": "FULL", "2026-05-01": "FULL", "2026-05-02": "FULL", "2026-05-03": "FULL"
+        };
+        let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+            document.getElementById('current-month-display').innerText = `${viewDate.getFullYear()} / ${viewDate.getMonth()+1}`;
+            const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+            const last = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 0).getDate();
+            for (let i=0; i<first; i++) grid.appendChild(Object.assign(document.createElement('div'), {className:'h-10'}));
+            for (let d=1; d<=last; d++) {
+                const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+                const s = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+                const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
+                if (OFF[s] === "FULL" || date < MIN_D || date > MAX_D) el.classList.add('disabled');
+                else {
+                    if (state.currentDate === s) el.classList.add('selected');
+                    el.onclick = () => { state.currentDate = s; state.currentTime = null; renderCalendar(); renderTime(); goToView('time'); };
+                }
+                grid.appendChild(el);
+            }
+        }
+        function renderTime() {
+            const grid = document.getElementById('time-grid'); grid.innerHTML = '';
+            const d = new Date(state.currentDate); const isW = d.getDay()===0||d.getDay()===6;
+            document.getElementById('time-hint').innerText = state.currentDate;
+            for (let h=(isW?14:10); h<=(isW?17:15); h++) {
+                ["00","30"].forEach(m => {
+                    if (h===(isW?17:15) && m==="30") return;
+                    const t = `${h.toString().padStart(2,'0')}:${m}`;
+                    const booked = OFF[state.currentDate]?.includes?.(t);
+                    const el = document.createElement('div'); el.innerText = t;
+                    el.className = `time-slot py-3 text-center rounded-xl text-xs cursor-pointer ${booked?'booked':'bg-white'}`;
+                    if (!booked) {
+                        if (state.currentTime === t) el.classList.add('selected');
+                        el.onclick = () => { state.currentTime = t; document.getElementById('btn-to-info').disabled = false; renderTime(); };
+                    }
+                    grid.appendChild(el);
+                });
+            }
+        }
+        function goToView(v) {
+            ['date','time','info'].forEach(i => document.getElementById('view-'+i).classList.add('hidden'));
+            document.getElementById('view-'+v).classList.remove('hidden');
+            ['1','2','3'].forEach(i => document.getElementById('step-'+i).classList.remove('step-active'));
+            document.getElementById('step-'+(v==='date'?'1':v==='time'?'2':'3')).classList.add('step-active');
+            if (v==='info') document.getElementById('final-selection').innerText = `${state.currentDate} ${state.currentTime}`;
+        }
+        function finishBooking() {
+            const n = document.getElementById('cust-name').value; if (!n) return alert("請填寫稱呼");
+            const s = document.getElementById('service-select').value;
+            const b = { id:Date.now(), name:n, date:state.currentDate, time:state.currentTime, service:s };
+            state.bookings.push(b); localStorage.setItem('ina_b', JSON.stringify(state.bookings));
+            const msg = `預約通知：\n姓名：${n}\n時間：${state.currentDate} ${state.currentTime}\n項目：${s}`;
+            const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            alert("資訊已複製！請至 Line 貼上訊息"); window.location.href = LINE_URL;
+        }
+        function changeMonth(n) { viewDate.setMonth(viewDate.getMonth()+n); renderCalendar(); }
+        function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function verifyAdmin() { if (document.getElementById('admin-pwd-input').value === ADMIN_PWD) { document.getElementById('admin-auth').classList.add('hidden'); document.getElementById('admin-content').classList.remove('hidden'); renderList(); } else alert("密碼錯誤"); }
+        function renderList() {
+            const l = document.getElementById('booking-list'); l.innerHTML = '';
+            state.bookings.forEach(b => {
+                const d = document.createElement('div'); d.className = "bg-stone-50 p-3 rounded-xl flex justify-between text-xs mb-2 border";
+                d.innerHTML = `<div><p class="font-bold">${b.date} ${b.time}</p><p>${b.name} - ${b.service}</p></div><button onclick="del(${b.id})" class="text-red-400">刪除</button>`;
+                l.appendChild(d);
+            });
+        }
+        function del(id) { state.bookings = state.bookings.filter(b => b.id!==id); localStorage.setItem('ina_b', JSON.stringify(state.bookings)); renderList(); }
+        window.onload = renderCalendar;
+    </script>
+</body>
+</html>
+
+```

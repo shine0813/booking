@@ -32,7 +32,6 @@
             <span id="step-1" class="step-active pb-1">01. 日期</span><span id="step-2" class="pb-1">02. 時段</span><span id="step-3" class="pb-1">03. 資料</span>
         </nav>
 
-        <!-- View 1: Date -->
         <section id="view-date">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-lg font-medium">選擇預約日期</h2>
@@ -44,7 +43,6 @@
             <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
         </section>
 
-        <!-- View 2: Time -->
         <section id="view-time" class="hidden">
             <h2 class="text-lg font-medium mb-1">選擇時段</h2>
             <p id="time-hint" class="text-[10px] opacity-50 mb-8"></p>
@@ -55,7 +53,6 @@
             </div>
         </section>
 
-        <!-- View 3: Info -->
         <section id="view-info" class="hidden">
             <h2 class="text-lg font-medium mb-1">預約資料</h2>
             <div class="bg-stone-50 p-5 rounded-2xl mb-8 border border-stone-100 text-sm">
@@ -115,7 +112,6 @@
         </section>
     </main>
 
-    <!-- 管理員 -->
     <div id="admin-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[32px] w-full max-w-md p-8">
             <div id="admin-auth">
@@ -134,15 +130,29 @@
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         let viewDate = new Date(2026, 3, 1);
-        const MIN_D = new Date(2026, 3, 26), MAX_D = new Date(2026, 4, 31);
+        const MIN_D = new Date(2026, 3, 20), MAX_D = new Date(2026, 4, 31);
         
-        // 封鎖日期清單
+        // 精準控制每個日期的封鎖時段
+        // 陣列內的時間為「不可預約」的時間點
         const OFF = {
-            "2026-04-26": "FULL", "2026-04-27": ["10:00", "10:30", "11:00", "11:30"],
-            "2026-04-28": "FULL", "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"],
-            "2026-04-30": "FULL", "2026-05-01": "FULL", "2026-05-02": "FULL", "2026-05-03": "FULL",
-            "2026-05-24": "FULL" // 新增 5/24 無法預約
+            "2026-04-20": [], // 全開
+            "2026-04-21": [], // 全開
+            "2026-04-22": "FULL",
+            "2026-04-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], // 僅剩 14:30, 15:00
+            "2026-04-24": ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], // 僅剩 10:00, 10:30
+            "2026-04-25": "FULL",
+            "2026-04-26": "FULL",
+            "2026-04-27": ["10:00", "10:30", "11:00", "11:30"], // 僅剩 12:00～15:00
+            "2026-04-28": "FULL",
+            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], // 僅剩 14:30, 15:00
+            "2026-04-30": "FULL",
+            "2026-05-01": "FULL",
+            "2026-05-02": "FULL",
+            "2026-05-03": "FULL",
+            "2026-05-24": "FULL",
+            "2026-05-26": ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00"] // 僅剩 10:00~12:00
         };
+
         let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
 
         function renderCalendar() {
@@ -156,7 +166,6 @@
                 const s = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
                 const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
                 
-                // 判斷是否封鎖或超出範圍
                 if (OFF[s] === "FULL" || date < MIN_D || date > MAX_D) {
                     el.classList.add('disabled');
                 } else {
@@ -169,16 +178,21 @@
 
         function renderTime() {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
-            const d = new Date(state.currentDate); const isW = d.getDay()===0||d.getDay()===6;
+            const d = new Date(state.currentDate); 
+            const isW = d.getDay()===0||d.getDay()===6;
             document.getElementById('time-hint').innerText = state.currentDate;
-            for (let h=(isW?14:10); h<=(isW?17:15); h++) {
+            
+            let start = isW ? 14 : 10;
+            let end = isW ? 17 : 15;
+
+            for (let h=start; h<=end; h++) {
                 ["00","30"].forEach(m => {
-                    if (h===(isW?17:15) && m==="30") return;
+                    if (h===end && m==="30") return;
                     const t = `${h.toString().padStart(2,'0')}:${m}`;
-                    const booked = OFF[state.currentDate]?.includes?.(t);
+                    const isOff = OFF[state.currentDate]?.includes?.(t);
                     const el = document.createElement('div'); el.innerText = t;
-                    el.className = `time-slot py-3 text-center rounded-xl text-xs cursor-pointer ${booked?'booked':'bg-white'}`;
-                    if (!booked) {
+                    el.className = `time-slot py-3 text-center rounded-xl text-xs cursor-pointer ${isOff?'booked':'bg-white'}`;
+                    if (!isOff) {
                         if (state.currentTime === t) el.classList.add('selected');
                         el.onclick = () => { state.currentTime = t; document.getElementById('btn-to-info').disabled = false; renderTime(); };
                     }
@@ -191,17 +205,13 @@
             const n = document.getElementById('cust-name').value;
             const bth = document.getElementById('cust-birthday').value;
             if (!n || !bth) return alert("請填寫稱呼與出生年月日唷！");
-            
             const s = document.getElementById('service-select').value;
             const addons = Array.from(document.querySelectorAll('.addon-check:checked')).map(cb => cb.value);
             const combinedServices = [s, ...addons].join(' + ');
-            
             const b = { id:Date.now(), name:n, birthday:bth, date:state.currentDate, time:state.currentTime, service:combinedServices };
             state.bookings.push(b); localStorage.setItem('ina_b', JSON.stringify(state.bookings));
-            
             const msg = `預約通知：\n姓名：${n}\n生日：${bth}\n時間：${state.currentDate} ${state.currentTime}\n項目：${combinedServices}`;
             const el = document.createElement('textarea'); el.value = msg; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            
             alert("預約資訊已複製！請至 Line 貼上並送出"); window.location.href = LINE_URL;
         }
 
@@ -227,5 +237,4 @@
     </script>
 </body>
 </html>
-
 

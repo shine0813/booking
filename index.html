@@ -124,18 +124,15 @@
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         
-        // 取得今日日期（清除時間，僅保留日期）
         const TODAY = new Date();
         TODAY.setHours(0, 0, 0, 0);
 
         let viewDate = new Date(2026, 3, 1);
         const MAX_D = new Date(2026, 4, 31);
         
-        // 不開放名單 (OFF List)
         const OFF = {
             "2026-04-20": "FULL", 
-            "2026-04-21": [], 
-            "2026-04-22": [], // 4/22 改為全天開放
+            "2026-04-22": [], 
             "2026-04-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], 
             "2026-04-24": ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-04-25": "FULL",
@@ -149,7 +146,7 @@
             "2026-05-03": "FULL",
             "2026-05-04": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
             "2026-05-05": "FULL", 
-            "2026-05-17": ["15:00"], // 5/17 平日上限原本為 15:00，關閉 15:00 則僅剩 14:00, 14:30
+            "2026-05-17": ["15:00", "15:30", "16:00", "16:30", "17:00"], // 強制關閉 15:00 之後所有時段
             "2026-05-22": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-05-24": "FULL",
             "2026-05-25": ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
@@ -210,7 +207,7 @@
         function finishBooking() {
             const n = document.getElementById('cust-name').value;
             const bth = document.getElementById('cust-birthday').value;
-            if (!n || !bth) return alert("請填寫稱呼與出生年月日唷！");
+            if (!n || !bth) return alert("請填寫姓名與生日唷！");
             const s = document.getElementById('service-select').value;
             const addons = Array.from(document.querySelectorAll('.addon-check:checked')).map(cb => cb.value);
             const combinedServices = [s, ...addons].join(' + ');

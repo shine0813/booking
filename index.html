@@ -80,18 +80,12 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-[10px] opacity-40 mb-3">加購服務 (複選)</label>
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-3 cursor-pointer text-sm">
+                <div class="space-y-4">
+                    <label class="block text-[10px] opacity-40 mb-3">加購 / 卸除服務 (複選)</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
                             <input type="checkbox" value="下睫毛" class="addon-check"> <span>下睫毛</span>
                         </label>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] opacity-40 mb-3">卸除服務 (複選)</label>
-                    <div class="grid grid-cols-1 gap-3">
                         <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer text-sm hover:bg-white transition-colors">
                             <div class="flex items-center gap-3"><input type="checkbox" value="本店卸除($200)" class="addon-check"><span>本店卸除</span></div><span class="opacity-40">$200</span>
                         </label>
@@ -129,28 +123,37 @@
 
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
-        let viewDate = new Date(2026, 3, 1);
-        const MIN_D = new Date(2026, 3, 20), MAX_D = new Date(2026, 4, 31);
         
-        // 精準控制每個日期的封鎖時段
-        // 陣列內的時間為「不可預約」的時間點
+        // 取得今日日期（清除時間，僅保留日期）
+        const TODAY = new Date();
+        TODAY.setHours(0, 0, 0, 0);
+
+        let viewDate = new Date(2026, 3, 1);
+        const MAX_D = new Date(2026, 4, 31);
+        
+        // 不開放名單 (OFF List)
         const OFF = {
-            "2026-04-20": [], // 全開
-            "2026-04-21": [], // 全開
-            "2026-04-22": "FULL",
-            "2026-04-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], // 僅剩 14:30, 15:00
-            "2026-04-24": ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], // 僅剩 10:00, 10:30
+            "2026-04-20": "FULL", 
+            "2026-04-21": [], 
+            "2026-04-22": [], // 4/22 改為全天開放
+            "2026-04-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], 
+            "2026-04-24": ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-04-25": "FULL",
             "2026-04-26": "FULL",
-            "2026-04-27": ["10:00", "10:30", "11:00", "11:30"], // 僅剩 12:00～15:00
+            "2026-04-27": "FULL", 
             "2026-04-28": "FULL",
-            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], // 僅剩 14:30, 15:00
+            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], 
             "2026-04-30": "FULL",
             "2026-05-01": "FULL",
             "2026-05-02": "FULL",
             "2026-05-03": "FULL",
+            "2026-05-04": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
+            "2026-05-05": "FULL", 
+            "2026-05-17": ["15:00"], // 5/17 平日上限原本為 15:00，關閉 15:00 則僅剩 14:00, 14:30
+            "2026-05-22": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-05-24": "FULL",
-            "2026-05-26": ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00"] // 僅剩 10:00~12:00
+            "2026-05-25": ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
+            "2026-05-26": ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00"]
         };
 
         let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
@@ -160,13 +163,16 @@
             document.getElementById('current-month-display').innerText = `${viewDate.getFullYear()} / ${viewDate.getMonth()+1}`;
             const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
             const last = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 0).getDate();
+            
             for (let i=0; i<first; i++) grid.appendChild(Object.assign(document.createElement('div'), {className:'h-10'}));
+            
             for (let d=1; d<=last; d++) {
                 const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+                date.setHours(0, 0, 0, 0);
                 const s = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
                 const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
                 
-                if (OFF[s] === "FULL" || date < MIN_D || date > MAX_D) {
+                if (date <= TODAY || OFF[s] === "FULL" || date > MAX_D) {
                     el.classList.add('disabled');
                 } else {
                     if (state.currentDate === s) el.classList.add('selected');
@@ -237,4 +243,5 @@
     </script>
 </body>
 </html>
+
 

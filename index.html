@@ -124,12 +124,14 @@
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         
+        // 自動獲取今日日期
         const TODAY = new Date();
         TODAY.setHours(0, 0, 0, 0);
 
         let viewDate = new Date(2026, 3, 1);
         const MAX_D = new Date(2026, 4, 31);
         
+        // 特殊關閉名單
         const OFF = {
             "2026-04-20": "FULL", 
             "2026-04-22": [], 
@@ -145,8 +147,11 @@
             "2026-05-02": "FULL",
             "2026-05-03": "FULL",
             "2026-05-04": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
-            "2026-05-05": "FULL", 
-            "2026-05-17": ["15:00", "15:30", "16:00", "16:30", "17:00"], // 強制關閉 15:00 之後所有時段
+            "2026-05-05": "FULL",
+            "2026-05-08": "FULL", // 新增關閉
+            "2026-05-09": "FULL", // 新增關閉
+            "2026-05-10": "FULL", // 新增關閉
+            "2026-05-17": ["15:00", "15:30", "16:00", "16:30", "17:00"], 
             "2026-05-22": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-05-24": "FULL",
             "2026-05-25": ["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
@@ -169,6 +174,7 @@
                 const s = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
                 const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
                 
+                // 核心邏輯：小於等於今天(TODAY)自動關閉，或名單內標註為 FULL
                 if (date <= TODAY || OFF[s] === "FULL" || date > MAX_D) {
                     el.classList.add('disabled');
                 } else {
@@ -240,5 +246,4 @@
     </script>
 </body>
 </html>
-
 

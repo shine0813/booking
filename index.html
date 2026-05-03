@@ -33,11 +33,8 @@
         </nav>
 
         <section id="view-date">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-medium">選擇預約日期</h2>
-                <div class="flex items-center gap-4 font-bold text-sm">
-                    <button onclick="changeMonth(-1)">‹</button><p id="current-month-display"></p><button onclick="changeMonth(1)">›</button>
-                </div>
+            <div class="flex justify-center items-center mb-6">
+                <h2 class="text-lg font-bold tracking-widest">2026 / 05</h2>
             </div>
             <div class="grid grid-cols-7 gap-1 text-center text-[10px] mb-4 opacity-40"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
             <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
@@ -124,29 +121,17 @@
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         
-        // 自動獲取今日日期
+        // 目前日期與月份鎖定
         const TODAY = new Date();
         TODAY.setHours(0, 0, 0, 0);
+        const FIX_YEAR = 2026;
+        const FIX_MONTH = 4; // JavaScript 月份從 0 開始，4 代表 5 月
 
-        let viewDate = new Date(2026, 3, 1);
-        const MAX_D = new Date(2026, 4, 31);
-        
         // 特殊日期設定名單
         const OFF = {
-            "2026-04-22": [], 
-            "2026-04-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], 
-            "2026-04-24": ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
-            "2026-04-25": "FULL",
-            "2026-04-26": "FULL",
-            "2026-04-27": "FULL", 
-            "2026-04-28": "FULL",
-            "2026-04-29": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"], 
-            "2026-04-30": "FULL",
-            "2026-05-01": "FULL",
-            "2026-05-02": "FULL",
-            "2026-05-03": "FULL",
             "2026-05-04": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
             "2026-05-05": "FULL",
+            "2026-05-06": "FULL",
             "2026-05-08": "FULL",
             "2026-05-09": "FULL",
             "2026-05-10": "FULL",
@@ -154,7 +139,7 @@
             "2026-05-17": ["15:00", "15:30", "16:00", "16:30", "17:00"], 
             "2026-05-22": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
             "2026-05-24": [], 
-            "2026-05-25": "FULL", // 5/25 更新為全天關閉
+            "2026-05-25": "FULL",
             "2026-05-26": ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
             "2026-05-31": ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30"] 
         };
@@ -163,19 +148,22 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
-            document.getElementById('current-month-display').innerText = `${viewDate.getFullYear()} / ${viewDate.getMonth()+1}`;
-            const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-            const last = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 0).getDate();
             
+            // 固定顯示 5 月
+            const first = new Date(FIX_YEAR, FIX_MONTH, 1).getDay();
+            const last = new Date(FIX_YEAR, FIX_MONTH + 1, 0).getDate();
+            
+            // 填充首行空白
             for (let i=0; i<first; i++) grid.appendChild(Object.assign(document.createElement('div'), {className:'h-10'}));
             
             for (let d=1; d<=last; d++) {
-                const date = new Date(viewDate.getFullYear(), viewDate.getMonth(), d);
+                const date = new Date(FIX_YEAR, FIX_MONTH, d);
                 date.setHours(0, 0, 0, 0);
-                const s = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+                const s = `${FIX_YEAR}-${(FIX_MONTH+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
                 const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
                 
-                if (date <= TODAY || OFF[s] === "FULL" || date > MAX_D) {
+                // 核心邏輯：小於等於今天或手動封鎖
+                if (date <= TODAY || OFF[s] === "FULL") {
                     el.classList.add('disabled');
                 } else {
                     if (state.currentDate === s) el.classList.add('selected');
@@ -229,7 +217,6 @@
             document.getElementById('view-'+v).classList.remove('hidden');
             if (v==='info') document.getElementById('final-selection').innerText = `${state.currentDate} ${state.currentTime}`;
         }
-        function changeMonth(n) { viewDate.setMonth(viewDate.getMonth()+n); renderCalendar(); }
         function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }
         function closeAdmin() { document.getElementById('admin-modal').classList.add('hidden'); }
         function verifyAdmin() { if (document.getElementById('admin-pwd-input').value === ADMIN_PWD) { document.getElementById('admin-auth').classList.add('hidden'); document.getElementById('admin-content').classList.remove('hidden'); renderList(); } else alert("密碼錯誤"); }
@@ -246,3 +233,4 @@
     </script>
 </body>
 </html>
+

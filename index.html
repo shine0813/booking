@@ -121,13 +121,12 @@
     <script>
         const ADMIN_PWD = "0813"; const LINE_URL = "https://lin.ee/8nG0CEA";
         
-        // 目前日期與月份鎖定
         const TODAY = new Date();
         TODAY.setHours(0, 0, 0, 0);
         const FIX_YEAR = 2026;
-        const FIX_MONTH = 4; // JavaScript 月份從 0 開始，4 代表 5 月
+        const FIX_MONTH = 4; // 5月
 
-        // 特殊日期設定名單
+        // 特殊日期設定
         const OFF = {
             "2026-05-04": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
             "2026-05-05": "FULL",
@@ -135,6 +134,8 @@
             "2026-05-08": "FULL",
             "2026-05-09": "FULL",
             "2026-05-10": "FULL",
+            // 5/11 僅開放 10:00 (平日其餘時段為 10:30-15:00)
+            "2026-05-11": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"],
             "2026-05-16": "FULL", 
             "2026-05-17": ["15:00", "15:30", "16:00", "16:30", "17:00"], 
             "2026-05-22": ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"], 
@@ -148,12 +149,9 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
-            
-            // 固定顯示 5 月
             const first = new Date(FIX_YEAR, FIX_MONTH, 1).getDay();
             const last = new Date(FIX_YEAR, FIX_MONTH + 1, 0).getDate();
             
-            // 填充首行空白
             for (let i=0; i<first; i++) grid.appendChild(Object.assign(document.createElement('div'), {className:'h-10'}));
             
             for (let d=1; d<=last; d++) {
@@ -162,7 +160,6 @@
                 const s = `${FIX_YEAR}-${(FIX_MONTH+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
                 const el = document.createElement('div'); el.innerText = d; el.className = 'calendar-day relative h-10 text-xs';
                 
-                // 核心邏輯：小於等於今天或手動封鎖
                 if (date <= TODAY || OFF[s] === "FULL") {
                     el.classList.add('disabled');
                 } else {

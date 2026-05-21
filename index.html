@@ -144,9 +144,7 @@
             "2026-05-25": "FULL",
             "2026-05-26": "FULL", 
             "2026-05-27": "FULL", 
-            "2026-05-28": "FULL",
-            "2026-05-30": "FULL",
-            "2026-05-31": "FULL"
+            "2026-05-28": "FULL"
         };
 
         let state = { currentDate: null, currentTime: null, bookings: JSON.parse(localStorage.getItem('ina_b') || '[]') };
@@ -219,7 +217,7 @@
             if (v==='info') document.getElementById('final-selection').innerText = `${state.currentDate} ${state.currentTime}`;
         }
         function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }
-        function closeAdmin() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function closeAdmin() { document.getElementById('admin-modal').classList.remove('hidden').classList.add('hidden'); }
         function verifyAdmin() { if (document.getElementById('admin-pwd-input').value === ADMIN_PWD) { document.getElementById('admin-auth').classList.add('hidden'); document.getElementById('admin-content').classList.remove('hidden'); renderList(); } else alert("密碼錯誤"); }
         function renderList() {
             const l = document.getElementById('booking-list'); l.innerHTML = '';
@@ -234,5 +232,4 @@
     </script>
 </body>
 </html>
-
 

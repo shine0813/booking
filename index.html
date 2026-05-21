@@ -47,20 +47,20 @@
                 <p class="text-[9px] opacity-40 uppercase">已選時間</p><p id="final-dt" class="font-bold"></p>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-6">
-                <input type="text" placeholder="請輸入姓名" class="border-b border-stone-200 bg-transparent py-2 text-sm">
-                <input type="text" placeholder="例：19950813" class="border-b border-stone-200 bg-transparent py-2 text-sm">
+                <input type="text" id="cust-name" placeholder="請輸入姓名" class="border-b border-stone-200 bg-transparent py-2 text-sm">
+                <input type="text" id="cust-bday" placeholder="生日" class="border-b border-stone-200 bg-transparent py-2 text-sm">
             </div>
-            <select class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm">
+            <select id="cust-service" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm">
                 <option>經典單根</option><option>柔密款</option><option>小紅書設計款</option><option>新中式美睫設計款</option>
             </select>
             <div class="space-y-3 mb-8 text-sm">
-                <label class="flex items-center p-3 border rounded-xl"><input type="checkbox" class="mr-3"> 下睫毛</label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" class="mr-3"> 本店卸除</div><span>$200</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" class="mr-3"> 本店卸除重接</div><span>Free</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" class="mr-3"> 他店卸除</div><span>$400</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" class="mr-3"> 他店卸除重接</div><span>$300</span></label>
+                <label class="flex items-center p-3 border rounded-xl"><input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛</label>
+                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div><span>$200</span></label>
+                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div><span>Free</span></label>
+                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div><span>$400</span></label>
+                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span>$300</span></label>
             </div>
-            <button onclick="alert('預約完成！')" class="w-full btn-main py-4 font-bold text-sm">確認預約並跳轉 Line</button>
+            <button onclick="submitReservation()" class="w-full btn-main py-4 font-bold text-sm">確認預約並跳轉 Line</button>
         </section>
     </main>
 
@@ -78,16 +78,12 @@
                 const dateObj = new Date(2026, state.m, i);
                 const s = `2026-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
                 const isHoliday = [0,6].includes(dateObj.getDay());
-                
                 const wrapper = document.createElement('div'); wrapper.className = 'day-cell';
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
-                
                 if ((state.m===4 && ![29,30,31].includes(i)) || OFF.includes(s)) el.classList.add('disabled');
                 else el.onclick = () => { state.d = s; renderTime(isHoliday); goTo('time'); };
-                
-                wrapper.appendChild(el);
-                grid.appendChild(wrapper);
+                wrapper.appendChild(el); grid.appendChild(wrapper);
             }
         }
         function renderTime(isHoliday) {
@@ -110,6 +106,13 @@
                 document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1';
             });
             if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t;
+        }
+        function submitReservation() {
+            const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', ');
+            const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${document.getElementById('cust-name').value}\n生日：${document.getElementById('cust-bday').value}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras}`;
+            navigator.clipboard.writeText(msg);
+            alert("已複製預約訊息，在官方Line貼上預約訊息送出！");
+            window.location.href = "https://lin.ee/8nG0CEA";
         }
         window.onload = renderCalendar;
     </script>

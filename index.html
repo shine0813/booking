@@ -68,15 +68,14 @@
         let state = { m: 4, d: null, t: null };
         // 全天不開放日期
         const OFF = [
+            "2026-06-08", // 新增 6/8 全天關閉
             "2026-06-09", // 6/9 全天關閉
-            "2026-06-12", // 新增 6/12 全天關閉
+            "2026-06-12", // 6/12 全天關閉
             "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21"
         ];
         
         // 特定日期部分時段關閉
-        const PARTIAL_OFF = {
-            "2026-06-08": ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00"] // 6/8 12:00 之後關閉
-        };
+        const PARTIAL_OFF = {};
 
         function renderCalendar() {
             state.m = parseInt(document.getElementById('month-select').value);
@@ -101,7 +100,6 @@
             document.getElementById('time-hint').innerText = state.d;
             const slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             slots.forEach(t => {
-                // 排除部分關閉的時段
                 if (PARTIAL_OFF[state.d] && PARTIAL_OFF[state.d].includes(t)) return;
                 
                 const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot';
@@ -124,7 +122,6 @@
             const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', ');
             const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${document.getElementById('cust-name').value}\n生日：${document.getElementById('cust-bday').value}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras}`;
             
-            // 複製到剪貼簿
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = msg;
             document.body.appendChild(tempTextArea);

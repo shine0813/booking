@@ -12,105 +12,168 @@
         .time-slot { border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px; cursor: pointer; text-align: center; font-size: 14px; }
         .time-slot.selected { background-color: #5e503f; color: white; border-color: #5e503f; }
         .btn-main { background-color: #d6c6b8; color: white; border-radius: 999px; }
-        .disabled { opacity: 0.1; cursor: not-allowed; }
+        .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; }
         .holiday-circle { background-color: #f9f4f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .day-cell { padding: 4px; }
     </style>
 </head>
 <body class="p-4">
-    <main class="max-w-xl mx-auto card p-8">
+    <main class="max-w-xl mx-auto card p-8 relative">
+        <!-- 導覽標籤 -->
         <nav class="flex justify-between mb-8 text-[10px] text-stone-400 uppercase">
             <span id="nav-1" class="step-active pb-1">01. 日期</span>
             <span id="nav-2" class="pb-1">02. 時段</span>
             <span id="nav-3" class="pb-1">03. 資料</span>
         </nav>
 
+        <!-- 步驟 1: 選擇日期 -->
         <section id="view-date">
-            <select id="month-select" onchange="renderCalendar()" class="w-full text-center font-bold text-lg mb-8 bg-transparent focus:outline-none">
-                <option value="4">2026 / 05</option><option value="5">2026 / 06</option>
-            </select>
+            <div class="text-center font-bold text-lg mb-8">2026 / 06</div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
             </div>
             <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
         </section>
 
+        <!-- 步驟 2: 選擇時段 -->
         <section id="view-time" class="hidden">
             <h2 class="text-lg mb-1">選擇時段</h2>
             <p id="time-hint" class="text-xs opacity-50 mb-6"></p>
             <div id="time-grid" class="grid grid-cols-3 gap-3 mb-8"></div>
-            <div class="flex justify-between items-center"><button onclick="goTo('date')" class="text-xs underline opacity-50">← 返回</button><button id="next-btn" onclick="goTo('info')" class="btn-main px-12 py-3 text-xs disabled:opacity-30" disabled>下一步</button></div>
+            <div class="flex justify-between items-center">
+                <button onclick="goTo('date')" class="text-xs underline opacity-50">← 返回</button>
+                <button id="next-btn" onclick="goTo('info')" class="btn-main px-12 py-3 text-xs disabled:opacity-30" disabled>下一步</button>
+            </div>
         </section>
 
+        <!-- 步驟 3: 填寫資料 -->
         <section id="view-info" class="hidden">
             <div class="bg-stone-50 p-4 rounded-2xl mb-6 text-sm border border-stone-100">
-                <p class="text-[9px] opacity-40 uppercase">已選時間</p><p id="final-dt" class="font-bold"></p>
+                <p class="text-[9px] opacity-40 uppercase">已選時間</p>
+                <p id="final-dt" class="font-bold"></p>
             </div>
             <div class="space-y-6 mb-6">
-                <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm">
-                <input type="text" id="cust-bday" placeholder="生日 (例：1995/08/13)" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm">
+                <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
+                <input type="text" id="cust-bday" placeholder="生日 (例：1995/08/13)" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
             </div>
-            <select id="cust-service" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm">
-                <option>經典單根</option><option>柔密款</option><option>小紅書設計款</option><option>新中式美睫設計款</option>
+            <select id="cust-service" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm focus:outline-none cursor-pointer">
+                <option>經典單根</option>
+                <option>柔密款</option>
+                <option>小紅書設計款</option>
+                <option>新中式美睫設計款</option>
             </select>
             <div class="space-y-3 mb-8 text-sm">
-                <label class="flex items-center p-3 border rounded-xl"><input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛</label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div><span>$200</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div><span>Free</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div><span>$400</span></label>
-                <label class="flex justify-between p-3 border rounded-xl"><div><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span>$300</span></label>
+                <label class="flex items-center p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
+                    <input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛
+                </label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
+                    <div class="flex items-center"><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div>
+                    <span>$200</span>
+                </label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
+                    <div class="flex items-center"><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div>
+                    <span class="text-stone-400">Free</span>
+                </label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
+                    <div class="flex items-center"><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div>
+                    <span>$400</span>
+                </label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
+                    <div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div>
+                    <span>$300</span>
+                </label>
             </div>
-            <button onclick="submitReservation()" class="w-full btn-main py-4 font-bold text-sm">確認預約並跳轉 Line</button>
+            <button onclick="submitReservation()" class="w-full btn-main py-4 font-bold text-sm hover:opacity-90 transition-opacity">確認預約並跳轉 Line</button>
         </section>
     </main>
 
+    <!-- 自訂訊息彈窗 (代替原生的 alert) -->
+    <div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black/40 z-50 hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-stone-100">
+            <h3 class="text-stone-800 font-bold text-base mb-4">預約提示</h3>
+            <p id="alert-message" class="text-stone-600 text-sm leading-relaxed mb-6"></p>
+            <button id="alert-confirm" class="w-full btn-main py-3 font-semibold text-xs tracking-wider">確定</button>
+        </div>
+    </div>
+
     <script>
-        let state = { m: 4, d: null, t: null };
-        // 全天不開放日期
+        const TODAY = new Date(2026, 4, 31); 
+        TODAY.setHours(0, 0, 0, 0);
+
+        // 預設為 5 即 6 月份
+        let state = { m: 5, d: null, t: null };
+
+        // 6 月份全天不開放日期
         const OFF = [
-            "2026-06-08", // 新增 6/8 全天關閉
-            "2026-06-09", // 6/9 全天關閉
-            "2026-06-12", // 6/12 全天關閉
+            "2026-06-08", 
+            "2026-06-09", 
+            "2026-06-12", 
             "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21"
         ];
-        
-        // 特定日期部分時段關閉
-        const PARTIAL_OFF = {};
+
+        function showMsg(text, callback) {
+            const modal = document.getElementById('custom-alert');
+            const msgEl = document.getElementById('alert-message');
+            const btn = document.getElementById('alert-confirm');
+            msgEl.innerText = text;
+            modal.classList.remove('hidden');
+            btn.onclick = () => {
+                modal.classList.add('hidden');
+                if (callback) callback();
+            };
+        }
 
         function renderCalendar() {
-            state.m = parseInt(document.getElementById('month-select').value);
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
             const firstDay = new Date(2026, state.m, 1).getDay();
             const lastDate = new Date(2026, state.m + 1, 0).getDate();
+            
+            // 填充空白
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+            
             for(let i=1; i<=lastDate; i++) {
                 const dateObj = new Date(2026, state.m, i);
+                dateObj.setHours(0, 0, 0, 0);
+                
                 const s = `2026-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
                 const isHoliday = [0,6].includes(dateObj.getDay());
                 const wrapper = document.createElement('div'); wrapper.className = 'day-cell';
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
-                if ((state.m===4 && ![29,30,31].includes(i)) || OFF.includes(s)) el.classList.add('disabled');
-                else el.onclick = () => { state.d = s; renderTime(isHoliday); goTo('time'); };
+                
+                const isPast = dateObj < TODAY;
+                const isClosed = OFF.includes(s);
+
+                if (isPast || isClosed) {
+                    el.classList.add('disabled');
+                } else {
+                    el.onclick = () => { 
+                        state.d = s; 
+                        renderTime(isHoliday); 
+                        goTo('time'); 
+                    };
+                }
                 wrapper.appendChild(el); grid.appendChild(wrapper);
             }
         }
+
         function renderTime(isHoliday) {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
             const slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             slots.forEach(t => {
-                if (PARTIAL_OFF[state.d] && PARTIAL_OFF[state.d].includes(t)) return;
-                
                 const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot';
                 el.onclick = () => { 
                     document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected'));
                     el.classList.add('selected'); state.t = t;
-                    document.getElementById('next-btn').disabled = false;
+                    const nextBtn = document.getElementById('next-btn');
+                    nextBtn.disabled = false;
+                    nextBtn.className = 'btn-main px-12 py-3 text-xs';
                 };
                 grid.appendChild(el);
             });
         }
+
         function goTo(v) {
             ['date','time','info'].forEach((s, i) => {
                 document.getElementById('view-'+s).classList.toggle('hidden', s!==v);
@@ -118,20 +181,36 @@
             });
             if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t;
         }
+
         function submitReservation() {
+            const name = document.getElementById('cust-name').value.trim();
+            const bday = document.getElementById('cust-bday').value.trim();
+            if (!name || !bday) {
+                showMsg("請填寫姓名與生日唷！");
+                return;
+            }
+
             const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', ');
-            const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${document.getElementById('cust-name').value}\n生日：${document.getElementById('cust-bday').value}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras}`;
+            const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`;
             
+            // 安全複製訊息至剪貼簿
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = msg;
+            tempTextArea.style.position = "fixed";
             document.body.appendChild(tempTextArea);
             tempTextArea.select();
-            document.execCommand('copy');
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('複製失敗：', err);
+            }
             document.body.removeChild(tempTextArea);
 
-            alert("已複製預約訊息，在官方Line貼上預約訊息送出！");
-            window.location.href = "https://lin.ee/8nG0CEA";
+            showMsg("已複製預約訊息，在官方Line貼上預約訊息送出！", () => {
+                window.location.href = "https://lin.ee/8nG0CEA";
+            });
         }
+
         window.onload = renderCalendar;
     </script>
 </body>

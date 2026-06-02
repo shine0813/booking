@@ -87,7 +87,7 @@
         </section>
     </main>
 
-    <!-- 自訂訊息彈窗 (代替原生的 alert) -->
+    <!-- 自訂訊息彈窗 -->
     <div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black/40 z-50 hidden p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-stone-100">
             <h3 class="text-stone-800 font-bold text-base mb-4">預約提示</h3>
@@ -97,16 +97,16 @@
     </div>
 
     <script>
-        // 模擬當前時間（2026/05/31 23:11）
-        const TODAY = new Date(2026, 4, 31); 
+        // 設定當前時間為 2026/06/02
+        const TODAY = new Date(2026, 5, 2); 
         TODAY.setHours(0, 0, 0, 0);
 
-        // 預設為 5 即 2026 年 6 月份
+        // 預設顯示 6 月份
         let state = { m: 5, d: null, t: null };
 
-        // 6 月份全天不開放日期（新增 6/6, 6/7）
+        // 6 月份全天不開放日期
         const OFF = [
-            "2026-06-06", "2026-06-07", // 新增 6/6、6/7 全天關閉
+            "2026-06-06", "2026-06-07",
             "2026-06-08", 
             "2026-06-09", 
             "2026-06-12", 
@@ -143,10 +143,11 @@
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
                 
-                const isPast = dateObj < TODAY;
+                // 變更為包含今天之前（<= TODAY）皆不可選
+                const isPastOrToday = dateObj <= TODAY;
                 const isClosed = OFF.includes(s);
 
-                if (isPast || isClosed) {
+                if (isPastOrToday || isClosed) {
                     el.classList.add('disabled');
                 } else {
                     el.onclick = () => { 

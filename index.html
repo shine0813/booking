@@ -39,7 +39,7 @@
         <section id="view-time" class="hidden">
             <div class="flex justify-between items-baseline mb-1">
                 <h2 class="text-lg font-medium">選擇時段</h2>
-                <span class="text-rose-500 text-[11px] font-medium">★ 新中式美睫僅接受 14:30 以前時段</span>
+                <span id="service-hint-text" class="text-rose-500 text-[11px] font-medium hidden">★ 新中式美睫僅接受 14:30 以前時段</span>
             </div>
             <p id="time-hint" class="text-xs opacity-50 mb-6"></p>
             <div id="time-grid" class="grid grid-cols-3 gap-3 mb-8"></div>
@@ -100,21 +100,25 @@
     </div>
 
     <script>
-        // 設定當前時間為 2026/06/02
-        const TODAY = new Date(2026, 5, 2); 
+        // 自動獲取系統當前時間，並將時間重設為 00:00:00 進行日期比對
+        const TODAY = new Date();
         TODAY.setHours(0, 0, 0, 0);
 
-        // 預設顯示 6 月份
+        // 預設顯示當前月份 (這裡設定 5 代表 6 月)
         let state = { m: 5, d: null, t: null };
 
-        // 6 月份全天不開放日期
+        // 6 月份特定不開放日期
         const OFF = [
             "2026-06-06", "2026-06-07",
-            "2026-06-08", 
             "2026-06-09", 
             "2026-06-12", 
             "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21"
         ];
+
+        // 限制特定日期的開放時段
+        const PARTIAL_LIMITS = {
+            "2026-06-08": ["10:00", "10:30", "11:00", "11:30"]
+        };
 
         function showMsg(text, callback) {
             const modal = document.getElementById('custom-alert');
@@ -146,6 +150,7 @@
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
                 
+                // 判定：若該日期小於或等於今天 (TODAY)，則自動設定為 disabled
                 const isPastOrToday = dateObj <= TODAY;
                 const isClosed = OFF.includes(s);
 
@@ -165,7 +170,21 @@
         function renderTime(isHoliday) {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
-            const slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            
+            // 提示字眼：如果是平日才顯示新中式美睫限制提示
+            const hintText = document.getElementById('service-hint-text');
+            if (isHoliday) {
+                hintText.classList.add('hidden');
+            } else {
+                hintText.classList.remove('hidden');
+            }
+
+            let slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            
+            if (PARTIAL_LIMITS[state.d]) {
+                slots = slots.filter(t => PARTIAL_LIMITS[state.d].includes(t));
+            }
+
             slots.forEach(t => {
                 const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot';
                 el.onclick = () => { 
@@ -220,3 +239,4 @@
     </script>
 </body>
 </html>
+

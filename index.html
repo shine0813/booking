@@ -107,7 +107,7 @@
         // 預設顯示當前月份 (這裡設定 5 代表 6 月)
         let state = { m: 5, d: null, t: null };
 
-        // 6 月份全天不開放日期 (已加上 6/24、6/25、6/26)
+        // 6 月份特定不開放日期
         const OFF = [
             "2026-06-06", "2026-06-07",
             "2026-06-09", 
@@ -152,7 +152,7 @@
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
                 
-                // 判定：若該日期小於或等於今天 (TODAY)，則自動設定為 disabled
+                // 判定：若該日期小於或等於今天 (TODAY)，則自動設定為 disabled 關閉
                 const isPastOrToday = dateObj <= TODAY;
                 const isClosed = OFF.includes(s);
 

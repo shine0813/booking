@@ -19,14 +19,12 @@
 </head>
 <body class="p-4">
     <main class="max-w-xl mx-auto card p-8 relative">
-        <!-- 導覽標籤 -->
         <nav class="flex justify-between mb-8 text-[10px] text-stone-400 uppercase">
             <span id="nav-1" class="step-active pb-1">01. 日期</span>
             <span id="nav-2" class="pb-1">02. 時段</span>
             <span id="nav-3" class="pb-1">03. 資料</span>
         </nav>
 
-        <!-- 步驟 1: 選擇日期 -->
         <section id="view-date">
             <div class="text-center font-bold text-lg mb-8">2026 / 06</div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
@@ -35,7 +33,6 @@
             <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
         </section>
 
-        <!-- 步驟 2: 選擇時段 -->
         <section id="view-time" class="hidden">
             <div class="flex justify-between items-baseline mb-1">
                 <h2 class="text-lg font-medium">選擇時段</h2>
@@ -49,7 +46,6 @@
             </div>
         </section>
 
-        <!-- 步驟 3: 填寫資料 -->
         <section id="view-info" class="hidden">
             <div class="bg-stone-50 p-4 rounded-2xl mb-6 text-sm border border-stone-100">
                 <p class="text-[9px] opacity-40 uppercase">已選時間</p>
@@ -90,7 +86,6 @@
         </section>
     </main>
 
-    <!-- 自訂訊息彈窗 -->
     <div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black/40 z-50 hidden p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-stone-100">
             <h3 class="text-stone-800 font-bold text-base mb-4">預約提示</h3>
@@ -100,71 +95,36 @@
     </div>
 
     <script>
-        // 自動獲取系統當前時間，並將時間重設為 00:00:00 進行日期比對
-        const TODAY = new Date();
-        TODAY.setHours(0, 0, 0, 0);
-
-        // 預設顯示當前月份 (這裡設定 5 代表 6 月)
+        const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
         let state = { m: 5, d: null, t: null };
-
-        // 6 月份特定不開放日期
-        const OFF = [
-            "2026-06-06", "2026-06-07",
-            "2026-06-09", 
-            "2026-06-12", 
-            "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21",
-            "2026-06-24", "2026-06-25", "2026-06-26"
-        ];
-
-        // 限制特定日期的開放時段
+        const OFF = ["2026-06-06", "2026-06-07", "2026-06-09", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-24", "2026-06-25", "2026-06-26"];
         const PARTIAL_LIMITS = {
             "2026-06-08": ["10:00", "10:30", "11:00", "11:30"],
-            "2026-06-10": ["14:00", "14:30", "15:00"]
+            "2026-06-10": ["14:00", "14:30", "15:00"],
+            "2026-06-23": ["13:30", "14:00", "14:30", "15:00"]
         };
 
         function showMsg(text, callback) {
             const modal = document.getElementById('custom-alert');
-            const msgEl = document.getElementById('alert-message');
-            const btn = document.getElementById('alert-confirm');
-            msgEl.innerText = text;
+            document.getElementById('alert-message').innerText = text;
             modal.classList.remove('hidden');
-            btn.onclick = () => {
-                modal.classList.add('hidden');
-                if (callback) callback();
-            };
+            document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if (callback) callback(); };
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
             const firstDay = new Date(2026, state.m, 1).getDay();
             const lastDate = new Date(2026, state.m + 1, 0).getDate();
-            
-            // 填充空白
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
-            
             for(let i=1; i<=lastDate; i++) {
-                const dateObj = new Date(2026, state.m, i);
-                dateObj.setHours(0, 0, 0, 0);
-                
+                const dateObj = new Date(2026, state.m, i); dateObj.setHours(0, 0, 0, 0);
                 const s = `2026-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
                 const isHoliday = [0,6].includes(dateObj.getDay());
-                const wrapper = document.createElement('div'); wrapper.className = 'day-cell';
                 const el = document.createElement('div'); el.innerText = i; 
                 el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
-                
-                // 判定：若該日期小於或等於今天 (TODAY)，則自動設定為 disabled 關閉
-                const isPastOrToday = dateObj <= TODAY;
-                const isClosed = OFF.includes(s);
-
-                if (isPastOrToday || isClosed) {
-                    el.classList.add('disabled');
-                } else {
-                    el.onclick = () => { 
-                        state.d = s; 
-                        renderTime(isHoliday); 
-                        goTo('time'); 
-                    };
-                }
+                if (dateObj <= TODAY || OFF.includes(s)) el.classList.add('disabled');
+                else el.onclick = () => { state.d = s; renderTime(isHoliday); goTo('time'); };
+                const wrapper = document.createElement('div'); wrapper.className = 'day-cell';
                 wrapper.appendChild(el); grid.appendChild(wrapper);
             }
         }
@@ -172,29 +132,18 @@
         function renderTime(isHoliday) {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
-            
-            // 提示字眼：如果是平日才顯示新中式美睫限制提示
             const hintText = document.getElementById('service-hint-text');
-            if (isHoliday) {
-                hintText.classList.add('hidden');
-            } else {
-                hintText.classList.remove('hidden');
-            }
+            hintText.classList.toggle('hidden', isHoliday);
 
             let slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
-            
-            if (PARTIAL_LIMITS[state.d]) {
-                slots = slots.filter(t => PARTIAL_LIMITS[state.d].includes(t));
-            }
+            if (PARTIAL_LIMITS[state.d]) slots = slots.filter(t => PARTIAL_LIMITS[state.d].includes(t));
 
             slots.forEach(t => {
                 const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot';
                 el.onclick = () => { 
                     document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected'));
                     el.classList.add('selected'); state.t = t;
-                    const nextBtn = document.getElementById('next-btn');
-                    nextBtn.disabled = false;
-                    nextBtn.className = 'btn-main px-12 py-3 text-xs';
+                    const btn = document.getElementById('next-btn'); btn.disabled = false; btn.className = 'btn-main px-12 py-3 text-xs';
                 };
                 grid.appendChild(el);
             });
@@ -211,32 +160,12 @@
         function submitReservation() {
             const name = document.getElementById('cust-name').value.trim();
             const bday = document.getElementById('cust-bday').value.trim();
-            if (!name || !bday) {
-                showMsg("請填寫姓名與生日唷！");
-                return;
-            }
-
+            if (!name || !bday) { showMsg("請填寫姓名與生日唷！"); return; }
             const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', ');
             const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`;
-            
-            // 安全複製訊息至剪貼簿
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = msg;
-            tempTextArea.style.position = "fixed";
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            try {
-                document.execCommand('copy');
-            } catch (err) {
-                console.error('複製失敗：', err);
-            }
-            document.body.removeChild(tempTextArea);
-
-            showMsg("已複製預約訊息，在官方Line貼上預約訊息送出！", () => {
-                window.location.href = "https://lin.ee/8nG0CEA";
-            });
+            const t = document.createElement("textarea"); t.value = msg; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+            showMsg("已複製預約訊息，貼上至官方Line即可送出！", () => { window.location.href = "https://lin.ee/8nG0CEA"; });
         }
-
         window.onload = renderCalendar;
     </script>
 </body>

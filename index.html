@@ -26,7 +26,11 @@
         </nav>
 
         <section id="view-date">
-            <div class="text-center font-bold text-lg mb-8">2026 / 06</div>
+            <div class="flex justify-center gap-4 mb-8 font-bold text-lg">
+                <button onclick="changeMonth(-1)">◀</button>
+                <div id="month-title">2026 / 06</div>
+                <button onclick="changeMonth(1)">▶</button>
+            </div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
             </div>
@@ -62,25 +66,11 @@
                 <option>新中式美睫設計款</option>
             </select>
             <div class="space-y-3 mb-8 text-sm">
-                <label class="flex items-center p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
-                    <input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛
-                </label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
-                    <div class="flex items-center"><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div>
-                    <span>$200</span>
-                </label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
-                    <div class="flex items-center"><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div>
-                    <span class="text-stone-400">Free</span>
-                </label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
-                    <div class="flex items-center"><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div>
-                    <span>$400</span>
-                </label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50">
-                    <div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div>
-                    <span>$300</span>
-                </label>
+                <label class="flex items-center p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛</label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div><span>$200</span></label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div><span class="text-stone-400">Free</span></label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div><span>$400</span></label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span>$300</span></label>
             </div>
             <button onclick="submitReservation()" class="w-full btn-main py-4 font-bold text-sm hover:opacity-90 transition-opacity">確認預約並跳轉 Line</button>
         </section>
@@ -96,76 +86,38 @@
 
     <script>
         const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
-        let state = { m: 5, d: null, t: null };
-        const OFF = ["2026-06-06", "2026-06-07", "2026-06-09", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28"];
-        const PARTIAL_LIMITS = {
-            "2026-06-08": ["10:00", "10:30", "11:00", "11:30"],
-            "2026-06-10": ["14:00", "14:30", "15:00"],
-            "2026-06-23": ["13:30", "14:00", "14:30", "15:00"]
-        };
+        let state = { y: 2026, m: 5, d: null, t: null };
+        const OFF = ["2026-06-06", "2026-06-07", "2026-06-09", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-07-01", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-13", "2026-07-24", "2026-07-25", "2026-07-26"];
+        const PARTIAL_LIMITS = { "2026-06-08": ["10:00", "10:30", "11:00", "11:30"], "2026-06-10": ["14:00", "14:30", "15:00"], "2026-06-23": ["13:30", "14:00", "14:30", "15:00"] };
 
-        function showMsg(text, callback) {
-            const modal = document.getElementById('custom-alert');
-            document.getElementById('alert-message').innerText = text;
-            modal.classList.remove('hidden');
-            document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if (callback) callback(); };
-        }
+        function changeMonth(d) { state.m += d; if(state.m > 11) {state.m=0; state.y++} else if(state.m < 0) {state.m=11; state.y--} renderCalendar(); }
+        function showMsg(text, cb) { const modal = document.getElementById('custom-alert'); document.getElementById('alert-message').innerText = text; modal.classList.remove('hidden'); document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; }
 
         function renderCalendar() {
+            document.getElementById('month-title').innerText = `${state.y} / ${(state.m+1).toString().padStart(2,'0')}`;
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
-            const firstDay = new Date(2026, state.m, 1).getDay();
-            const lastDate = new Date(2026, state.m + 1, 0).getDate();
+            const firstDay = new Date(state.y, state.m, 1).getDay(), lastDate = new Date(state.y, state.m + 1, 0).getDate();
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
             for(let i=1; i<=lastDate; i++) {
-                const dateObj = new Date(2026, state.m, i); dateObj.setHours(0, 0, 0, 0);
-                const s = `2026-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
-                const isHoliday = [0,6].includes(dateObj.getDay());
-                const el = document.createElement('div'); el.innerText = i; 
-                el.className = `cursor-pointer ${isHoliday ? 'holiday-circle' : 'p-2'}`;
+                const dateObj = new Date(state.y, state.m, i); dateObj.setHours(0, 0, 0, 0);
+                const s = `${state.y}-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
+                const isH = [0,6].includes(dateObj.getDay());
+                const el = document.createElement('div'); el.innerText = i; el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
                 if (dateObj <= TODAY || OFF.includes(s)) el.classList.add('disabled');
-                else el.onclick = () => { state.d = s; renderTime(isHoliday); goTo('time'); };
-                const wrapper = document.createElement('div'); wrapper.className = 'day-cell';
-                wrapper.appendChild(el); grid.appendChild(wrapper);
+                else el.onclick = () => { state.d = s; renderTime(isH); goTo('time'); };
+                const w = document.createElement('div'); w.className = 'day-cell'; w.appendChild(el); grid.appendChild(w);
             }
         }
-
-        function renderTime(isHoliday) {
+        function renderTime(isH) {
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
-            const hintText = document.getElementById('service-hint-text');
-            hintText.classList.toggle('hidden', isHoliday);
-
-            let slots = isHoliday ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            document.getElementById('service-hint-text').classList.toggle('hidden', isH);
+            let slots = isH ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             if (PARTIAL_LIMITS[state.d]) slots = slots.filter(t => PARTIAL_LIMITS[state.d].includes(t));
-
-            slots.forEach(t => {
-                const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot';
-                el.onclick = () => { 
-                    document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected'));
-                    el.classList.add('selected'); state.t = t;
-                    const btn = document.getElementById('next-btn'); btn.disabled = false; btn.className = 'btn-main px-12 py-3 text-xs';
-                };
-                grid.appendChild(el);
-            });
+            slots.forEach(t => { const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot'; el.onclick = () => { document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); state.t = t; const btn = document.getElementById('next-btn'); btn.disabled = false; btn.className = 'btn-main px-12 py-3 text-xs'; }; grid.appendChild(el); });
         }
-
-        function goTo(v) {
-            ['date','time','info'].forEach((s, i) => {
-                document.getElementById('view-'+s).classList.toggle('hidden', s!==v);
-                document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1';
-            });
-            if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t;
-        }
-
-        function submitReservation() {
-            const name = document.getElementById('cust-name').value.trim();
-            const bday = document.getElementById('cust-bday').value.trim();
-            if (!name || !bday) { showMsg("請填寫姓名與生日唷！"); return; }
-            const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', ');
-            const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`;
-            const t = document.createElement("textarea"); t.value = msg; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-            showMsg("已複製預約訊息，貼上至官方Line即可送出！", () => { window.location.href = "https://lin.ee/8nG0CEA"; });
-        }
+        function goTo(v) { ['date','time','info'].forEach((s, i) => { document.getElementById('view-'+s).classList.toggle('hidden', s!==v); document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1'; }); if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t; }
+        function submitReservation() { const name = document.getElementById('cust-name').value.trim(); const bday = document.getElementById('cust-bday').value.trim(); if(!name || !bday) { showMsg("請填寫姓名與生日唷！"); return; } const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', '); const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`; const t = document.createElement("textarea"); t.value = msg; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); showMsg("已複製訊息，貼上至官方Line即可送出！", () => window.location.href = "https://lin.ee/8nG0CEA"); }
         window.onload = renderCalendar;
     </script>
 </body>

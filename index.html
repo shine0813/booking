@@ -84,7 +84,7 @@
     <script>
         const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
         let state = { y: 2026, m: 6, d: null, t: null };
-        const OFF = ["2026-07-01", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-07", "2026-07-13", "2026-07-18", "2026-07-19", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26"];
+        const OFF = ["2026-07-01", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-13", "2026-07-18", "2026-07-19", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26"];
         const LIMITS = { "2026-07-02": ["13:30", "14:00", "14:30", "15:00"], "2026-07-11": ["16:30", "17:00"] };
 
         function showMsg(text, cb) { const modal = document.getElementById('custom-alert'); document.getElementById('alert-message').innerText = text; modal.classList.remove('hidden'); document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; }

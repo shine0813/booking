@@ -26,8 +26,10 @@
         </nav>
 
         <section id="view-date">
-            <div class="flex justify-center gap-4 mb-8 font-bold text-lg">
+            <div class="flex justify-between items-center mb-8 font-bold text-lg">
+                <button onclick="changeMonth(-1)" class="opacity-50">＜</button>
                 <div id="month-title">2026 / 07</div>
+                <button onclick="changeMonth(1)" class="opacity-50">＞</button>
             </div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
@@ -84,11 +86,13 @@
     <script>
         const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
         let state = { y: 2026, m: 6, d: null, t: null };
-        const OFF = ["2026-07-01", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-09", "2026-07-10", "2026-07-11", "2026-07-13", "2026-07-15", "2026-07-18", "2026-07-19", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26"];
+        const OFF = ["2026-07-01", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-09", "2026-07-10", "2026-07-11", "2026-07-13", "2026-07-15", "2026-07-18", "2026-07-19", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26", "2026-08-01", "2026-08-02"];
         const LIMITS = { "2026-07-02": ["13:30", "14:00", "14:30", "15:00"] };
 
+        function changeMonth(delta) { state.m += delta; if(state.m > 7) state.m = 7; if(state.m < 6) state.m = 6; renderCalendar(); }
         function showMsg(text, cb) { const modal = document.getElementById('custom-alert'); document.getElementById('alert-message').innerText = text; modal.classList.remove('hidden'); document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; }
         function renderCalendar() {
+            document.getElementById('month-title').innerText = `${state.y} / ${(state.m+1).toString().padStart(2,'0')}`;
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
             const firstDay = new Date(state.y, state.m, 1).getDay(), lastDate = new Date(state.y, state.m + 1, 0).getDate();
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));

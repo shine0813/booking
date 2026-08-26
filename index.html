@@ -40,7 +40,7 @@
         <section id="view-time" class="hidden">
             <div class="flex justify-between items-baseline mb-1">
                 <h2 class="text-lg font-medium">選擇時段</h2>
-                <span id="service-hint-text" class="text-rose-500 text-[11px] font-medium hidden">★ 新中式款服務僅接受 14:30 以前時段</span>
+                <span id="service-hint-text" class="text-rose-500 text-[11px] font-medium hidden">★ 新中式款服務僅接受 15:00 以前時段</span>
             </div>
             <p id="time-hint" class="text-xs opacity-50 mb-6"></p>
             <div id="time-grid" class="grid grid-cols-3 gap-3 mb-8"></div>
@@ -94,12 +94,13 @@
         const OFF = [
             "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09", 
             "2026-08-13", "2026-08-16", "2026-08-17", "2026-08-23", "2026-08-25", "2026-08-29",
-            "2026-09-08", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28"
+            "2026-09-08", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29"
         ];
         const LIMITS = { 
             "2026-08-05": ["10:00"],
             "2026-08-18": ["10:00"],
-            "2026-08-27": ["10:00"]
+            "2026-08-27": ["10:00"],
+            "2026-09-07": ["10:00", "10:30"]
         };
 
         function changeMonth(delta) { 
@@ -131,7 +132,7 @@
             const grid = document.getElementById('time-grid'); grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
             document.getElementById('service-hint-text').classList.toggle('hidden', isH);
-            let slots = isH ? ["14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            let slots = isH ? ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             if (LIMITS[state.d]) slots = LIMITS[state.d];
             slots.forEach(t => { const el = document.createElement('div'); el.innerText = t; el.className = 'time-slot'; el.onclick = () => { document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); state.t = t; const btn = document.getElementById('next-btn'); btn.disabled = false; btn.className = 'btn-main px-12 py-3 text-xs'; }; grid.appendChild(el); });
         }

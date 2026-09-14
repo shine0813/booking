@@ -89,40 +89,72 @@
     <script>
         const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
         let state = { y: 2026, m: 8, d: null, t: null }; // 固定為 9 月 (m=8)
+        
+        // 全天關閉的日期
         const OFF = [
             "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", 
             "2026-09-14", "2026-09-16", "2026-09-19", "2026-09-20", 
             "2026-09-21", "2026-09-24", "2026-09-25", "2026-09-26", 
             "2026-09-27", "2026-09-28", "2026-09-29"
         ];
+
+        // 特定日期部分時段關閉或指定
         const DISABLED_SLOTS = { 
             "2026-09-10": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:30", "16:00", "16:30", "17:00"], // 僅保留 15:00
-            "2026-09-15": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"] // 關閉 10:00~13:30
+            "2026-09-15": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"], // 關閉 10:00~13:30
+            "2026-09-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00"] // 只留 13:30 之後
         };
 
-        function showMsg(text, cb) { const modal = document.getElementById('custom-alert'); document.getElementById('alert-message').innerText = text; modal.classList.remove('hidden'); document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; }
+        function showMsg(text, cb) { 
+            const modal = document.getElementById('custom-alert'); 
+            document.getElementById('alert-message').innerText = text; 
+            modal.classList.remove('hidden'); 
+            document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; 
+        }
         
         function renderCalendar() {
             document.getElementById('month-title').innerText = `${state.y} / ${(state.m+1).toString().padStart(2,'0')}`;
-            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
-            const firstDay = new Date(state.y, state.m, 1).getDay(), lastDate = new Date(state.y, state.m + 1, 0).getDate();
+            const grid = document.getElementById('calendar-grid'); 
+            grid.innerHTML = '';
+            const firstDay = new Date(state.y, state.m, 1).getDay();
+            const lastDate = new Date(state.y, state.m + 1, 0).getDate();
+            
             for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+            
             for(let i=1; i<=lastDate; i++) {
-                const dateObj = new Date(state.y, state.m, i); dateObj.setHours(0, 0, 0, 0);
+                const dateObj = new Date(state.y, state.m, i); 
+                dateObj.setHours(0, 0, 0, 0);
                 const s = `${state.y}-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
                 const isH = [0,6].includes(dateObj.getDay());
-                const el = document.createElement('div'); el.innerText = i; el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
-                if (dateObj <= TODAY || OFF.includes(s)) el.classList.add('disabled');
-                else el.onclick = () => { state.d = s; renderTime(isH); goTo('time'); };
-                const w = document.createElement('div'); w.className = 'day-cell'; w.appendChild(el); grid.appendChild(w);
+                const el = document.createElement('div'); 
+                el.innerText = i; 
+                el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
+                
+                if (dateObj <= TODAY || OFF.includes(s)) {
+                    el.classList.add('disabled');
+                } else {
+                    el.onclick = () => { 
+                        state.d = s; 
+                        renderTime(isH); 
+                        goTo('time'); 
+                    };
+                }
+                const w = document.createElement('div'); 
+                w.className = 'day-cell'; 
+                w.appendChild(el); 
+                grid.appendChild(w);
             }
         }
 
         function renderTime(isH) {
-            const grid = document.getElementById('time-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('time-grid'); 
+            grid.innerHTML = '';
             document.getElementById('time-hint').innerText = state.d;
             document.getElementById('service-hint-text').classList.toggle('hidden', isH);
-            let slots = isH ? ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            
+            let slots = isH ? 
+                ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : 
+                ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             
             slots.forEach(t => { 
                 const el = document.createElement('div'); 
@@ -133,7 +165,7 @@
                     el.classList.add('disabled');
                 } else {
                     el.onclick = () => { 
-                        document.querySelectorAll('.time-slot').forEach(e=>e.classList.remove('selected')); 
+                        document.querySelectorAll('.time-slot').forEach(e => e.classList.remove('selected')); 
                         el.classList.add('selected'); 
                         state.t = t; 
                         const btn = document.getElementById('next-btn'); 
@@ -145,15 +177,29 @@
             });
         }
 
-        function goTo(v) { ['date','time','info'].forEach((s, i) => { document.getElementById('view-'+s).classList.toggle('hidden', s!==v); document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1'; }); if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t; }
+        function goTo(v) { 
+            ['date','time','info'].forEach((s, i) => { 
+                document.getElementById('view-'+s).classList.toggle('hidden', s!==v); 
+                document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1'; 
+            }); 
+            if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t; 
+        }
         
         function submitReservation() { 
             const name = document.getElementById('cust-name').value.trim(); 
             const bday = document.getElementById('cust-bday').value.trim(); 
             if(!name || !bday) { showMsg("請填寫姓名與生日唷！"); return; } 
+            
             const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', '); 
             const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`; 
-            const t = document.createElement("textarea"); t.value = msg; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); 
+            
+            const t = document.createElement("textarea"); 
+            t.value = msg; 
+            document.body.appendChild(t); 
+            t.select(); 
+            document.execCommand('copy'); 
+            document.body.removeChild(t); 
+            
             showMsg("已複製訊息，貼上至官方Line即可送出！", () => window.location.href = "https://lin.ee/8nG0CEA"); 
         }
 

@@ -67,7 +67,7 @@
                 <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div><span>$200</span></label>
                 <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div><span class="text-stone-400">Free</span></label>
                 <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div><span>$400</span></label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span>$300</span></label>
+                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span class="text-stone-400">$300</span></label>
             </div>
             
             <p class="text-[11px] text-rose-500 bg-rose-50 p-3 rounded-xl mb-4 text-center leading-relaxed font-bold">
@@ -101,8 +101,7 @@
         // 特定日期部分時段關閉或指定
         const DISABLED_SLOTS = { 
             "2026-09-10": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:30", "16:00", "16:30", "17:00"], // 僅保留 15:00
-            "2026-09-15": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"], // 關閉 10:00~13:30
-            "2026-09-23": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00"] // 只留 13:30 之後
+            "2026-09-15": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"] // 關閉 10:00~13:30
         };
 
         function showMsg(text, cb) { 
@@ -156,6 +155,19 @@
                 ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : 
                 ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
             
+            // 9/23 只留 13:30 之後的時段
+            if (state.d === "2026-09-23") {
+                slots = slots.filter(t => {
+                    const [h, m] = t.split(':').map(Number);
+                    return h > 13 || (h === 13 && m >= 30);
+                });
+            }
+
+            // 9/22 只保留 10:00 一個時段
+            if (state.d === "2026-09-22") {
+                slots = ["10:00"];
+            }
+
             slots.forEach(t => { 
                 const el = document.createElement('div'); 
                 el.innerText = t; 

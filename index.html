@@ -15,24 +15,6 @@
         .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; }
         .holiday-circle { background-color: #f9f4f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .day-cell { padding: 4px; }
-        /* 優化切換月份按鈕設計，符合奶茶色系美感 */
-        .month-btn {
-            background-color: #faf6f2;
-            color: #7c6d59;
-            border: 1px solid #e8dfd8;
-            border-radius: 999px;
-            padding: 6px 14px;
-            font-size: 12px;
-            transition: all 0.2s ease;
-        }
-        .month-btn:hover:not(:disabled) {
-            background-color: #ede2d8;
-            color: #5e503f;
-        }
-        .month-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body class="p-4">
@@ -44,10 +26,8 @@
         </nav>
 
         <section id="view-date">
-            <div class="flex justify-between items-center mb-6 font-bold text-lg px-2">
-                <button id="prev-month-btn" onclick="changeMonth(-1)" class="month-btn">◀ 上個月</button>
+            <div class="flex justify-center items-center mb-6 font-bold text-lg px-2">
                 <div id="month-title">2026 / 10</div>
-                <button id="next-month-btn" onclick="changeMonth(1)" class="month-btn" disabled>下個月 ▶</button>
             </div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
@@ -107,17 +87,11 @@
     </div>
 
     <script>
-        const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
-        let state = { y: 2026, m: 9, d: null, t: null }; // 預設 2026 年 10 月 (m=9)
+        const TODAY = new Date(2026, 9, 1); // 鎖定在 2026 年 10 月
+        let state = { y: 2026, m: 9, d: null, t: null }; // 固定 2026 年 10 月 (m=9)
         
-        // 全天關閉的日期設定 (包含 9 月與 10 月指定全天關閉日期，以及新增 10/2, 10/6, 10/7)
+        // 十月份全天關閉的日期設定
         const OFF = [
-            "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", 
-            "2026-09-14", "2026-09-16", "2026-09-18", "2026-09-19", 
-            "2026-09-20", "2026-09-21", "2026-09-23", "2026-09-24", 
-            "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29",
-            "2026-09-30",
-            // 10 月全天關閉日期 (含新增 10/2, 10/6, 10/7)
             "2026-10-02", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07",
             "2026-10-11", "2026-10-17", "2026-10-18", "2026-10-24", "2026-10-25", 
             "2026-10-26", "2026-10-30"
@@ -125,7 +99,7 @@
 
         // 特定日期部分時段關閉或指定
         const DISABLED_SLOTS = { 
-            "2026-09-10": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:30", "16:00", "16:30", "17:00"] // 9/10 僅保留 15:00
+            "2026-10-01": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30"] // 10/1 關閉 10:00-13:00 時段
         };
 
         function showMsg(text, cb) { 
@@ -135,20 +109,8 @@
             document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; 
         }
 
-        function changeMonth(dir) {
-            state.m += dir;
-            // 嚴格限制只能在 9月 (m=8) 與 10月 (m=9) 之間切換
-            if (state.m > 9) state.m = 9;
-            if (state.m < 8) state.m = 8;
-            renderCalendar();
-        }
-        
         function renderCalendar() {
             document.getElementById('month-title').innerText = `${state.y} / ${(state.m+1).toString().padStart(2,'0')}`;
-            
-            // 更新月份切換按鈕的禁用狀態，防止超出 9、10 月範圍
-            document.getElementById('prev-month-btn').disabled = (state.m <= 8);
-            document.getElementById('next-month-btn').disabled = (state.m >= 9);
 
             const grid = document.getElementById('calendar-grid'); 
             grid.innerHTML = '';
@@ -166,7 +128,7 @@
                 el.innerText = i; 
                 el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
                 
-                if (dateObj <= TODAY || OFF.includes(s)) {
+                if (OFF.includes(s)) {
                     el.classList.add('disabled');
                 } else {
                     el.onclick = () => { 
@@ -191,11 +153,6 @@
             let slots = isH ? 
                 ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : 
                 ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
-
-            // 9/22 只保留 10:00 一個時段
-            if (state.d === "2026-09-22") {
-                slots = ["10:00"];
-            }
 
             slots.forEach(t => { 
                 const el = document.createElement('div'); 

@@ -12,7 +12,7 @@
         .time-slot { border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px; cursor: pointer; text-align: center; font-size: 14px; }
         .time-slot.selected { background-color: #5e503f; color: white; border-color: #5e503f; }
         .btn-main { background-color: #d6c6b8; color: white; border-radius: 999px; }
-        .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; }
+        .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
         .holiday-circle { background-color: #f9f4f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .day-cell { padding: 4px; }
     </style>
@@ -79,6 +79,7 @@
         </section>
     </main>
 
+    <!-- Custom Modal Alert -->
     <div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black/40 z-50 hidden p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-stone-100">
             <h3 class="text-stone-800 font-bold text-base mb-4">預約提示</h3>
@@ -90,13 +91,16 @@
     <script>
         const state = { y: 2026, m: 9, d: null, t: null }; // 固定 2026 年 10 月 (m=9)
         
-        // 十月份全天關閉的日期設定（已包含 10/1、10/2、10/3、10/4、10/5、10/6、10/7、10/9、10/10、10/11、10/12-10/16、10/17、10/18、10/24、10/25、10/26、10/30、10/31）
+        // 今天的日期字符串 (2026/10/12)
+        const TODAY_STR = "2026-10-12";
+
+        // 十月份指定關閉的日期設定
         const OFF = [
             "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", 
             "2026-10-06", "2026-10-07", "2026-10-09", "2026-10-10", "2026-10-11", 
             "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
-            "2026-10-17", "2026-10-18", "2026-10-24", "2026-10-25", "2026-10-26", 
-            "2026-10-30", "2026-10-31"
+            "2026-10-17", "2026-10-18", "2026-10-20", "2026-10-23", "2026-10-24", 
+            "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-30", "2026-10-31"
         ];
 
         const DISABLED_SLOTS = {};
@@ -127,7 +131,8 @@
                 el.innerText = i; 
                 el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
                 
-                if (OFF.includes(s)) {
+                // 規則：今天及之前的日期，或者在 OFF 關閉清單中的日期，皆強制不可預約
+                if (s <= TODAY_STR || OFF.includes(s)) {
                     el.classList.add('disabled');
                 } else {
                     el.onclick = () => { 
@@ -180,7 +185,7 @@
                 document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1'; 
             }); 
             if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t; 
-        }
+        } 
         
         function submitReservation() { 
             const name = document.getElementById('cust-name').value.trim(); 

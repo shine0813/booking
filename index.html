@@ -26,8 +26,10 @@
         </nav>
 
         <section id="view-date">
-            <div class="flex justify-center items-center mb-6 font-bold text-lg px-2">
+            <div class="flex justify-between items-center mb-6 font-bold text-lg px-2">
+                <button onclick="changeMonth(-1)" class="text-sm px-3 py-1 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors">◀</button>
                 <div id="month-title">2026 / 10</div>
+                <button onclick="changeMonth(1)" class="text-sm px-3 py-1 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors">▶</button>
             </div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
@@ -88,18 +90,22 @@
     </div>
 
     <script>
-        const state = { y: 2026, m: 9, d: null, t: null }; // 固定 2026 年 10 月 (m=9)
+        const state = { y: 2026, m: 9, d: null, t: null }; // 預設 2026 年 10 月 (m=9)
         
         // 今天的日期 (2026/10/12)
         const TODAY_STR = "2026-10-12";
 
-        // 十月份指定全天關閉的日期設定
+        // 全天關閉的日期設定 (包含十月份與新增的十一月份指定關閉日)
         const OFF = [
+            // 10月份關閉日
             "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", 
             "2026-10-06", "2026-10-07", "2026-10-09", "2026-10-10", "2026-10-11", 
             "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
             "2026-10-17", "2026-10-18", "2026-10-20", "2026-10-23", "2026-10-24", 
-            "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-30", "2026-10-31"
+            "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29",
+            "2026-10-30", "2026-10-31",
+            // 11月份新增關閉日
+            "2026-11-11", "2026-11-20", "2026-11-21", "2026-11-22"
         ];
 
         // 特定日期局部關閉的時段設定 (10/19 關閉 10:00~13:00)
@@ -112,6 +118,14 @@
             document.getElementById('alert-message').innerText = text; 
             modal.classList.remove('hidden'); 
             document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; 
+        }
+
+        function changeMonth(direction) {
+            state.m += direction;
+            if (state.m > 11) { state.m = 0; state.y++; }
+            else if (state.m < 9) { state.m = 9; state.y = 2026; } // 限制最早只能看 10 月
+            else if (state.m > 10) { state.m = 10; state.y = 2026; } // 限制最遠只能看 11 月
+            renderCalendar();
         }
 
         function renderCalendar() {

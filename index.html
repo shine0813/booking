@@ -26,10 +26,8 @@
         </nav>
 
         <section id="view-date">
-            <div class="flex justify-between items-center mb-6 font-bold text-lg px-2">
-                <button onclick="changeMonth(-1)" class="text-sm px-3 py-1 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors">◀</button>
-                <div id="month-title">2026 / 10</div>
-                <button onclick="changeMonth(1)" class="text-sm px-3 py-1 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors">▶</button>
+            <div class="flex justify-center items-center mb-6 font-bold text-lg px-2">
+                <div id="month-title">2026 / 11</div>
             </div>
             <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
                 <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
@@ -59,7 +57,7 @@
                 <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
                 <input type="text" id="cust-bday" placeholder="生日 (例：1995/08/13)" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
             </div>
-            <select id="cust-service" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm focus:outline-none cursor-pointer">
+            <select id="cust-service" onchange="checkServiceTime()" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm focus:outline-none cursor-pointer">
                 <option>經典單根</option>
                 <option>柔密款</option>
                 <option>設計款</option>
@@ -91,30 +89,26 @@
     </div>
 
     <script>
-        const state = { y: 2026, m: 9, d: null, t: null }; // 預設 2026 年 10 月 (m=9)
+        // 設定 2026 年 11 月 (月份索引 10)
+        const state = { y: 2026, m: 10, d: null, t: null }; 
         
-        // 當前基準日期自動更新為 2026/10/30，當天及之前的日期一律自動關閉
-        const TODAY_STR = "2026-10-30";
+        // 當前基準日期：2026/11/02（當天及之前的日期一律自動關閉）
+        const TODAY_STR = "2026-11-02";
 
-        // 全天關閉的日期設定
+        // 全天關閉的日期設定 (11月份)
         const OFF = [
-            // 10月份關閉日
-            "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", 
-            "2026-10-06", "2026-10-07", "2026-10-09", "2026-10-10", "2026-10-11", 
-            "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
-            "2026-10-17", "2026-10-18", "2026-10-20", "2026-10-23", "2026-10-24", 
-            "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29",
-            "2026-10-30", "2026-10-31",
-            // 11月份關閉日 (新增 11/6, 11/27)
             "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-06",
             "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15",
             "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-27"
         ];
         
         // 特定日期局部關閉的時段設定
-        const DISABLED_SLOTS = {
-            "2026-10-19": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00"],
-            "2026-10-22": ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00"]
+        const DISABLED_SLOTS = {};
+
+        const LINE_LINK = "https://lin.ee/8nG0CEA";
+
+        window.onload = function() {
+            renderCalendar();
         };
 
         function showMsg(text, cb) { 
@@ -122,14 +116,6 @@
             document.getElementById('alert-message').innerText = text; 
             modal.classList.remove('hidden'); 
             document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; 
-        }
-
-        function changeMonth(direction) {
-            state.m += direction;
-            if (state.m > 11) { state.m = 0; state.y++; }
-            else if (state.m < 9) { state.m = 9; state.y = 2026; }
-            else if (state.m > 10) { state.m = 10; state.y = 2026; }
-            renderCalendar();
         }
 
         function renderCalendar() {
@@ -140,18 +126,21 @@
             const firstDay = new Date(state.y, state.m, 1).getDay();
             const lastDate = new Date(state.y, state.m + 1, 0).getDate();
             
-            for(let i=0; i<firstDay; i++) grid.appendChild(document.createElement('div'));
+            for(let i = 0; i < firstDay; i++) {
+                grid.appendChild(document.createElement('div'));
+            }
             
-            for(let i=1; i<=lastDate; i++) {
+            for(let i = 1; i <= lastDate; i++) {
                 const dateObj = new Date(state.y, state.m, i); 
                 dateObj.setHours(0, 0, 0, 0);
                 const s = `${state.y}-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
                 const isH = [0,6].includes(dateObj.getDay());
+                
                 const el = document.createElement('div'); 
                 el.innerText = i; 
                 el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
                 
-                // 規則：當天及之前的日期，或者在 OFF 關閉清單中的日期，皆強制不可預約
+                // 當天及之前的日期，或者在 OFF 關閉清單中的日期，皆強制不可預約
                 if (s <= TODAY_STR || OFF.includes(s)) {
                     el.classList.add('disabled');
                 } else {
@@ -168,64 +157,91 @@
             }
         }
 
-        function renderTime(isH) {
-            const grid = document.getElementById('time-grid'); 
+        function renderTime(isWeekend) {
+            const grid = document.getElementById('time-grid');
             grid.innerHTML = '';
-            document.getElementById('time-hint').innerText = state.d;
-            document.getElementById('service-hint-text').classList.toggle('hidden', isH);
-            
-            let slots = isH ? 
-                ["12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30","16:00","16:30","17:00"] : 
-                ["10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00"];
+            state.t = null;
+            document.getElementById('next-btn').disabled = true;
 
-            slots.forEach(t => { 
-                const el = document.createElement('div'); 
-                el.innerText = t; 
-                el.className = 'time-slot'; 
+            const weekDays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+            const [y, m, d] = state.d.split('-').map(Number);
+            const dayOfWeek = new Date(y, m - 1, d).getDay();
+            
+            document.getElementById('time-hint').innerText = `${state.d} (${weekDays[dayOfWeek]}) - ${isWeekend ? '週末限定 14:00-17:00' : '平日限定 10:00-15:00'}`;
+
+            const slots = isWeekend 
+                ? ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"]
+                : ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"];
+
+            const disabledForDate = DISABLED_SLOTS[state.d] || [];
+
+            slots.forEach(time => {
+                const el = document.createElement('div');
+                el.innerText = time;
+                el.className = 'time-slot';
                 
-                if (DISABLED_SLOTS[state.d] && DISABLED_SLOTS[state.d].includes(t)) {
+                if (disabledForDate.includes(time)) {
                     el.classList.add('disabled');
                 } else {
-                    el.onclick = () => { 
-                        document.querySelectorAll('.time-slot').forEach(e => e.classList.remove('selected')); 
-                        el.classList.add('selected'); 
-                        state.t = t; 
-                        const btn = document.getElementById('next-btn'); 
-                        btn.disabled = false; 
-                        btn.className = 'btn-main px-12 py-3 text-xs'; 
-                    }; 
+                    el.onclick = () => {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        el.classList.add('selected');
+                        state.t = time;
+                        document.getElementById('next-btn').disabled = false;
+                    };
                 }
-                grid.appendChild(el); 
+                grid.appendChild(el);
             });
         }
 
-        function goTo(v) { 
-            ['date','time','info'].forEach((s, i) => { 
-                document.getElementById('view-'+s).classList.toggle('hidden', s!==v); 
-                document.getElementById('nav-'+(i+1)).className = (s===v ? 'step-active' : '') + ' pb-1'; 
-            }); 
-            if(v==='info') document.getElementById('final-dt').innerText = state.d + ' ' + state.t; 
-        } 
-        
-        function submitReservation() { 
-            const name = document.getElementById('cust-name').value.trim(); 
-            const bday = document.getElementById('cust-bday').value.trim(); 
-            if(!name || !bday) { showMsg("請填寫姓名與生日唷！"); return; } 
-            
-            const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value).join(', '); 
-            const msg = `預約日期：${state.d}\n預約時段：${state.t}\n姓名：${name}\n生日：${bday}\n服務：${document.getElementById('cust-service').value}\n加購/卸除：${extras || '無'}`; 
-            
-            const t = document.createElement("textarea"); 
-            t.value = msg; 
-            document.body.appendChild(t); 
-            t.select(); 
-            document.execCommand('copy'); 
-            document.body.removeChild(t); 
-            
-            showMsg("已複製訊息，貼上至官方Line即可送出！", () => window.location.href = "https://lin.ee/8nG0CEA"); 
+        function goTo(step) {
+            ['view-date', 'view-time', 'view-info'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(`view-${step}`).classList.remove('hidden');
+
+            document.getElementById('nav-1').className = (step === 'date') ? 'step-active pb-1' : 'pb-1';
+            document.getElementById('nav-2').className = (step === 'time') ? 'step-active pb-1' : 'pb-1';
+            document.getElementById('nav-3').className = (step === 'info') ? 'step-active pb-1' : 'pb-1';
+
+            if (step === 'info') {
+                document.getElementById('final-dt').innerText = `${state.d} ${state.t}`;
+                checkServiceTime();
+            }
         }
 
-        window.onload = renderCalendar;
+        function checkServiceTime() {
+            const service = document.getElementById('cust-service').value;
+            const hint = document.getElementById('service-hint-text');
+            if (service === '新中式美睫設計款' && state.t > '14:30') {
+                hint.classList.remove('hidden');
+            } else {
+                hint.classList.add('hidden');
+            }
+        }
+
+        function submitReservation() {
+            const name = document.getElementById('cust-name').value.trim();
+            const bday = document.getElementById('cust-bday').value.trim();
+            const service = document.getElementById('cust-service').value;
+            
+            if (!name) { showMsg("請輸入姓名唷！"); return; }
+            if (!bday) { showMsg("請輸入生日資訊唷！"); return; }
+
+            const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value);
+            const serviceFull = [service, ...extras].join(' + ');
+
+            const msg = `【ina以娜·美睫 預約通知】\n姓名：${name}\n生日：${bday}\n日期：${state.d}\n時段：${state.t}\n服務：${serviceFull}`;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = msg;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showMsg("預約內容已自動複製！\n即將為您跳轉至官方 LINE，請直接「貼上並傳送」訊息給我們唷！", () => {
+                window.location.href = LINE_LINK;
+            });
+        }
     </script>
 </body>
 </html>

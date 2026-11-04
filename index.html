@@ -92,129 +92,150 @@
         // 設定 2026 年 11 月 (月份索引 10)
         const state = { y: 2026, m: 10, d: null, t: null }; 
         
-        // 當前基準日期：2026/11/02（當天及之前的日期一律自動關閉）
-        const TODAY_STR = "2026-11-02";
+        // 當前基準日期：2026/11/04（當天及之前的日期一律自動關閉）
+        const TODAY_STR = "2026-11-04";
 
-        // 全天關閉的日期設定 (11月份) - 新增關閉 11/18、11/25
+        // 全天關閉的日期設定 (11月份)
         const OFF = [
             "2026-11-01", "2026-11-02", "2026-11-04", "2026-11-05", "2026-11-06",
             "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15",
-            "2026-11-18", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-25", "2026-11-27"
+            "2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25", "2026-11-27"
         ];
         
         // 特定日期局部關閉的時段設定
         const DISABLED_SLOTS = {};
 
-        const LINE_LINK = "https://lin.ee/8nG0CEA";
-
         window.onload = function() {
             renderCalendar();
         };
 
-        function showMsg(text, cb) { 
-            const modal = document.getElementById('custom-alert'); 
-            document.getElementById('alert-message').innerText = text; 
-            modal.classList.remove('hidden'); 
-            document.getElementById('alert-confirm').onclick = () => { modal.classList.add('hidden'); if(cb) cb(); }; 
+        function customAlert(msg, callback) {
+            const modal = document.getElementById('custom-alert');
+            const msgEl = document.getElementById('alert-message');
+            const btn = document.getElementById('alert-confirm');
+            msgEl.innerText = msg;
+            modal.classList.remove('hidden');
+            btn.onclick = function() {
+                modal.classList.add('hidden');
+                if(callback) callback();
+            };
         }
 
         function renderCalendar() {
-            document.getElementById('month-title').innerText = `${state.y} / ${(state.m+1).toString().padStart(2,'0')}`;
-
-            const grid = document.getElementById('calendar-grid'); 
+            const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
-            const firstDay = new Date(state.y, state.m, 1).getDay();
-            const lastDate = new Date(state.y, state.m + 1, 0).getDate();
             
-            for(let i = 0; i < firstDay; i++) {
+            const firstDay = new Date(state.y, state.m, 1).getDay();
+            const totalDays = new Date(state.y, state.m + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
                 grid.appendChild(document.createElement('div'));
             }
-            
-            for(let i = 1; i <= lastDate; i++) {
-                const dateObj = new Date(state.y, state.m, i); 
-                dateObj.setHours(0, 0, 0, 0);
-                const s = `${state.y}-${(state.m+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`;
-                const isH = [0,6].includes(dateObj.getDay());
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${state.y}-${String(state.m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
                 
-                const el = document.createElement('div'); 
-                el.innerText = i; 
-                el.className = `cursor-pointer ${isH ? 'holiday-circle' : 'p-2'}`;
-                
-                // 當天及之前的日期，或者在 OFF 關閉清單中的日期，皆強制不可預約
-                if (s <= TODAY_STR || OFF.includes(s)) {
-                    el.classList.add('disabled');
+                const isOff = OFF.includes(dateStr);
+                const isPastOrToday = dateStr <= TODAY_STR;
+
+                if (isOff || isPastOrToday) {
+                    cell.innerHTML = `<div class="holiday-circle disabled">${day}</div>`;
                 } else {
-                    el.onclick = () => { 
-                        state.d = s; 
-                        renderTime(isH); 
-                        goTo('time'); 
-                    };
+                    const isSelected = state.d === dateStr;
+                    cell.innerHTML = `<div class="holiday-circle ${isSelected ? 'bg-stone-800 text-white font-bold' : 'hover:bg-stone-200 cursor-pointer'}">${day}</div>`;
+                    cell.onclick = () => selectDate(dateStr);
                 }
-                const w = document.createElement('div'); 
-                w.className = 'day-cell'; 
-                w.appendChild(el); 
-                grid.appendChild(w);
+                grid.appendChild(cell);
             }
         }
 
-        function renderTime(isWeekend) {
-            const grid = document.getElementById('time-grid');
-            grid.innerHTML = '';
+        function selectDate(d) {
+            state.d = d;
             state.t = null;
             document.getElementById('next-btn').disabled = true;
+            renderCalendar();
+            renderTimeSlots();
+            goTo('time');
+        }
 
-            const weekDays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+        function renderTimeSlots() {
+            const grid = document.getElementById('time-grid');
+            grid.innerHTML = '';
+
             const [y, m, d] = state.d.split('-').map(Number);
-            const dayOfWeek = new Date(y, m - 1, d).getDay();
+            const dateObj = new Date(y, m - 1, d);
+            const dayOfWeek = dateObj.getDay();
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
             
+            const startHour = isWeekend ? 14 : 10;
+            const endHour = isWeekend ? 17 : 15;
+            
+            const weekDays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
             document.getElementById('time-hint').innerText = `${state.d} (${weekDays[dayOfWeek]}) - ${isWeekend ? '週末限定 14:00-17:00' : '平日限定 10:00-15:00'}`;
 
-            const slots = isWeekend 
-                ? ["14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"]
-                : ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"];
+            let slots = [];
+            for (let h = startHour; h <= endHour; h++) {
+                slots.push(`${h.toString().padStart(2, '0')}:00`);
+                if (h < endHour) {
+                    slots.push(`${h.toString().padStart(2, '0')}:30`);
+                }
+            }
 
             const disabledForDate = DISABLED_SLOTS[state.d] || [];
 
             slots.forEach(time => {
-                const el = document.createElement('div');
-                el.innerText = time;
-                el.className = 'time-slot';
-                
-                if (disabledForDate.includes(time)) {
-                    el.classList.add('disabled');
+                const slot = document.createElement('div');
+                const isSlotDisabled = disabledForDate.includes(time);
+
+                if (isSlotDisabled) {
+                    slot.className = 'time-slot disabled';
+                    slot.innerText = time;
                 } else {
-                    el.onclick = () => {
-                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                        el.classList.add('selected');
+                    const isSelected = state.t === time;
+                    slot.className = `time-slot ${isSelected ? 'selected' : 'hover:border-stone-400'}`;
+                    slot.innerText = time;
+                    slot.onclick = () => {
                         state.t = time;
                         document.getElementById('next-btn').disabled = false;
+                        renderTimeSlots();
+                        checkServiceTime();
                     };
                 }
-                grid.appendChild(el);
+                grid.appendChild(slot);
             });
-        }
-
-        function goTo(step) {
-            ['view-date', 'view-time', 'view-info'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(`view-${step}`).classList.remove('hidden');
-
-            document.getElementById('nav-1').className = (step === 'date') ? 'step-active pb-1' : 'pb-1';
-            document.getElementById('nav-2').className = (step === 'time') ? 'step-active pb-1' : 'pb-1';
-            document.getElementById('nav-3').className = (step === 'info') ? 'step-active pb-1' : 'pb-1';
-
-            if (step === 'info') {
-                document.getElementById('final-dt').innerText = `${state.d} ${state.t}`;
-                checkServiceTime();
-            }
         }
 
         function checkServiceTime() {
             const service = document.getElementById('cust-service').value;
             const hint = document.getElementById('service-hint-text');
-            if (service === '新中式美睫設計款' && state.t > '14:30') {
+            
+            if (service === '新中式美睫設計款') {
                 hint.classList.remove('hidden');
+                if (state.t && state.t > '14:30') {
+                    customAlert('★ 新中式美睫設計款服務時間較長，僅接受 14:30 以前的時段預約，請選擇其他早一點的時段，謝謝！', () => {
+                        state.t = null;
+                        document.getElementById('next-btn').disabled = true;
+                        renderTimeSlots();
+                    });
+                }
             } else {
                 hint.classList.add('hidden');
+            }
+        }
+
+        function goTo(view) {
+            ['date', 'time', 'info'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            
+            ['nav-1', 'nav-2', 'nav-3'].forEach(n => document.getElementById(n).className = 'pb-1');
+            const navIndex = view === 'date' ? 1 : view === 'time' ? 2 : 3;
+            document.getElementById(`nav-${navIndex}`).className = 'step-active pb-1';
+
+            if (view === 'info') {
+                document.getElementById('final-dt').innerText = `${state.d} ${state.t}`;
+                checkServiceTime();
             }
         }
 
@@ -223,13 +244,15 @@
             const bday = document.getElementById('cust-bday').value.trim();
             const service = document.getElementById('cust-service').value;
             
-            if (!name) { showMsg("請輸入姓名唷！"); return; }
-            if (!bday) { showMsg("請輸入生日資訊唷！"); return; }
+            if (!name || !bday) {
+                customAlert('請完整填寫姓名與生日資訊唷！');
+                return;
+            }
 
             const extras = Array.from(document.querySelectorAll('.cust-extra:checked')).map(cb => cb.value);
-            const serviceFull = [service, ...extras].join(' + ');
+            const extraText = extras.length > 0 ? `\n加購項目：${extras.join('、')}` : '';
 
-            const msg = `【ina以娜·美睫 預約通知】\n姓名：${name}\n生日：${bday}\n日期：${state.d}\n時段：${state.t}\n服務：${serviceFull}`;
+            const msg = `【ina以娜·美睫 預約需求】\n姓名：${name}\n生日：${bday}\n日期：${state.d}\n時段：${state.t}\n項目：${service}${extraText}`;
 
             const textarea = document.createElement('textarea');
             textarea.value = msg;
@@ -238,8 +261,8 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
 
-            showMsg("預約內容已自動複製！\n即將為您跳轉至官方 LINE，請直接「貼上並傳送」訊息給我們唷！", () => {
-                window.location.href = LINE_LINK;
+            customAlert('預約資訊已複製！即將為您開啟 LINE，請直接「貼上並傳送」訊息給我們即可完成預約。', () => {
+                window.location.href = 'https://lin.ee/8nG0CEA';
             });
         }
     </script>

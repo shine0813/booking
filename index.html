@@ -14,7 +14,7 @@
         .btn-main { background-color: #d6c6b8; color: white; border-radius: 999px; }
         .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
         .holiday-circle { background-color: #f9f4f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .day-cell { padding: 4px; }
+        .day-cell { padding: 4px; display: flex; align-items: center; justify-content: center; height: 44px; }
     </style>
 </head>
 <body class="p-4">
@@ -133,18 +133,32 @@
             }
 
             for (let day = 1; day <= totalDays; day++) {
+                const dateObj = new Date(state.y, state.m, day);
+                const dayOfWeek = dateObj.getDay();
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
                 const dateStr = `${state.y}-${String(state.m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const cell = document.createElement('div');
                 cell.className = 'day-cell';
                 
                 const isOff = OFF.includes(dateStr);
                 const isPastOrToday = dateStr <= TODAY_STR;
+                const isSelected = state.d === dateStr;
 
                 if (isOff || isPastOrToday) {
-                    cell.innerHTML = `<div class="holiday-circle disabled">${day}</div>`;
+                    if (isWeekend) {
+                        cell.innerHTML = `<div class="holiday-circle disabled">${day}</div>`;
+                    } else {
+                        cell.innerHTML = `<span class="disabled">${day}</span>`;
+                    }
                 } else {
-                    const isSelected = state.d === dateStr;
-                    cell.innerHTML = `<div class="holiday-circle ${isSelected ? 'bg-stone-800 text-white font-bold' : 'hover:bg-stone-200 cursor-pointer'}">${day}</div>`;
+                    if (isSelected) {
+                        cell.innerHTML = `<div class="holiday-circle bg-stone-800 text-white font-bold cursor-pointer">${day}</div>`;
+                    } else if (isWeekend) {
+                        cell.innerHTML = `<div class="holiday-circle hover:bg-stone-200 cursor-pointer">${day}</div>`;
+                    } else {
+                        cell.innerHTML = `<span class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-200 cursor-pointer">${day}</span>`;
+                    }
                     cell.onclick = () => selectDate(dateStr);
                 }
                 grid.appendChild(cell);

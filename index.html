@@ -3,106 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ina以娜 | 預約系統</title>
+    <title>INA 以娜 · 美睫 | 預約系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f6f1ed; color: #5e503f; font-family: sans-serif; }
-        .card { background: white; border-radius: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .step-active { border-bottom: 2px solid #5e503f; font-weight: bold; }
-        .time-slot { border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px; cursor: pointer; text-align: center; font-size: 14px; }
-        .time-slot.selected { background-color: #5e503f; color: white; border-color: #5e503f; }
-        .btn-main { background-color: #d6c6b8; color: white; border-radius: 999px; }
-        .disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
-        .holiday-circle { background-color: #f9f4f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .day-cell { padding: 4px; display: flex; align-items: center; justify-content: center; height: 44px; }
+        body { 
+            background-color: #f4eee8; 
+            color: #5e503f; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+        }
+        .card-container { 
+            background: #efe8e1; 
+            border-radius: 36px; 
+            box-shadow: 0 10px 30px rgba(94, 80, 63, 0.08); 
+        }
+        .inner-box {
+            background: rgba(246, 241, 237, 0.7);
+            border-radius: 20px;
+        }
+        .white-card {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        .step-active { 
+            border-bottom: 2px solid #5e503f; 
+            font-weight: bold; 
+            color: #5e503f;
+        }
+        .time-slot { 
+            border: 1px solid #e5e5e5; 
+            border-radius: 12px; 
+            padding: 12px; 
+            cursor: pointer; 
+            text-align: center; 
+            font-size: 14px; 
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .time-slot.selected { 
+            background-color: #5e503f; 
+            color: white; 
+            border-color: #5e503f; 
+        }
+        .btn-main { 
+            background-color: #cbbba9; 
+            color: white; 
+            border-radius: 999px; 
+            transition: all 0.2s ease;
+        }
+        .btn-main:hover {
+            opacity: 0.9;
+        }
+        .disabled { 
+            opacity: 0.2; 
+            cursor: not-allowed; 
+            text-decoration: line-through; 
+            pointer-events: none; 
+        }
+        .holiday-circle { 
+            background-color: #f9f4f0; 
+            border-radius: 50%; 
+            width: 36px; 
+            height: 36px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto; 
+        }
+        .day-cell { 
+            padding: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 44px; 
+        }
     </style>
 </head>
-<body class="p-4">
-    <main class="max-w-xl mx-auto card p-8 relative">
-        <nav class="flex justify-between mb-8 text-[10px] text-stone-400 uppercase">
-            <span id="nav-1" class="step-active pb-1">01. 日期</span>
-            <span id="nav-2" class="pb-1">02. 時段</span>
-            <span id="nav-3" class="pb-1">03. 資料</span>
-        </nav>
+<body class="p-3 md:p-8 min-h-screen flex justify-center items-start">
+    <div class="w-full max-w-md card-container p-5 md:p-7 my-4">
+        
+        <!-- LOGO 區域 -->
+        <div class="text-center my-6">
+            <h1 class="text-3xl font-serif tracking-[0.25em] text-stone-700 ml-2">INA</h1>
+            <p class="text-[11px] tracking-[0.3em] text-stone-500 mt-2 uppercase">以娜 · 美睫 · LASHES</p>
+        </div>
 
-        <section id="view-date">
-            <div class="flex justify-center items-center mb-6 font-bold text-lg px-2">
-                <div id="month-title">2026 / 11</div>
+        <!-- 區塊一：預約須知 -->
+        <section class="mb-8">
+            <div class="flex items-center justify-center my-6">
+                <div class="h-[1px] bg-stone-300 w-12"></div>
+                <h2 class="text-sm font-bold tracking-widest text-stone-600 px-4">RESERVATION 預約須知</h2>
+                <div class="h-[1px] bg-stone-300 w-12"></div>
             </div>
-            <div class="grid grid-cols-7 gap-2 text-center text-[10px] text-stone-400 mb-4 uppercase">
-                <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+
+            <!-- 服務空間介紹 -->
+            <div class="inner-box p-4 text-center mb-5">
+                <p class="text-xs font-bold text-stone-700 mb-1">🏠 服務空間：居家工作室</p>
+                <p class="text-[11px] text-stone-500 mb-2">位置：桃園龜山 A7 (近樂善國小)</p>
+                <p class="text-[11px] text-stone-500 leading-relaxed">自家次臥的空間，服務時段小孩不在家，可以舒適安靜的睡一覺</p>
             </div>
-            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
+
+            <!-- 須知清單 -->
+            <div class="inner-box p-5 text-xs text-stone-600 space-y-3.5 leading-relaxed">
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>3 個月內無施作睫毛管理 (角蛋白)</span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>半年內未做過眼睛手術</span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>居家工作室環境維護，<strong class="text-stone-800 underline">請勿攜伴</strong></span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>若無法赴約請 <strong class="text-stone-800">提前</strong> 告知，以便安排補位</span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>預約保留 10 分鐘，請務必準時赴約</span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>無法接受當天臨時預約</span>
+                </div>
+                <div class="flex items-start">
+                    <span class="mr-2 text-stone-400">●</span>
+                    <span>詳細地址將於預約成功後、嫁接前一天提醒預約時告知</span>
+                </div>
+                <div class="flex items-start text-rose-600 font-medium">
+                    <span class="mr-2 text-rose-500">●</span>
+                    <span>因為有小孩要照顧，目前僅開放白天時段</span>
+                </div>
+            </div>
         </section>
 
-        <section id="view-time" class="hidden">
-            <div class="flex justify-between items-baseline mb-1">
-                <h2 class="text-lg font-medium">選擇時段</h2>
-                <span id="service-hint-text" class="text-rose-500 text-[11px] font-medium hidden">★ 新中式款服務僅接受 14:30 以前時段</span>
-            </div>
-            <p id="time-hint" class="text-xs opacity-50 mb-6"></p>
-            <div id="time-grid" class="grid grid-cols-3 gap-3 mb-8"></div>
-            <div class="flex justify-between items-center">
-                <button onclick="goTo('date')" class="text-xs underline opacity-50">← 返回</button>
-                <button id="next-btn" onclick="goTo('info')" class="btn-main px-12 py-3 text-xs disabled:opacity-30" disabled>下一步</button>
-            </div>
-        </section>
+        <!-- 區塊二：預約日曆表單 -->
+        <main class="white-card p-5 md:p-7">
+            <!-- 步驟導覽 -->
+            <nav class="flex justify-between mb-6 text-[11px] text-stone-400 uppercase tracking-wider">
+                <span id="nav-1" class="step-active pb-1 cursor-pointer" onclick="goTo('date')">01. 日期</span>
+                <span id="nav-2" class="pb-1 cursor-pointer">02. 時段</span>
+                <span id="nav-3" class="pb-1 cursor-pointer">03. 資料</span>
+            </nav>
 
-        <section id="view-info" class="hidden">
-            <div class="bg-stone-50 p-4 rounded-2xl mb-6 text-sm border border-stone-100">
-                <p class="text-[9px] opacity-40 uppercase">已選時間</p>
-                <p id="final-dt" class="font-bold"></p>
-            </div>
-            <div class="space-y-6 mb-6">
-                <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
-                <input type="text" id="cust-bday" placeholder="生日 (例：1995/08/13)" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none">
-            </div>
-            <select id="cust-service" onchange="checkServiceTime()" class="w-full border-b border-stone-200 bg-transparent py-2 mb-6 text-sm focus:outline-none cursor-pointer">
-                <option>經典單根</option>
-                <option>柔密款</option>
-                <option>設計款</option>
-                <option>新中式美睫設計款</option>
-            </select>
-            <div class="space-y-3 mb-8 text-sm">
-                <label class="flex items-center p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><input type="checkbox" value="下睫毛" class="cust-extra mr-3"> 下睫毛</label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除" class="cust-extra mr-3"> 本店卸除</div><span>$200</span></label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="本店卸除重接" class="cust-extra mr-3"> 本店卸除重接</div><span class="text-stone-400">Free</span></label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除" class="cust-extra mr-3"> 他店卸除</div><span>$400</span></label>
-                <label class="flex justify-between p-3 border border-stone-200 rounded-xl cursor-pointer hover:bg-stone-50"><div class="flex items-center"><input type="checkbox" value="他店卸除重接" class="cust-extra mr-3"> 他店卸除重接</div><span class="text-stone-400">$300</span></label>
-            </div>
-            
-            <p class="text-[11px] text-rose-500 bg-rose-50 p-3 rounded-xl mb-4 text-center leading-relaxed font-bold">
-                點擊後將自動複製預約訊息，<br>跳轉至官方Line後，記得「貼上並送出」，<br>收到我的回覆才算預約成功喔！
-            </p>
+            <!-- 第一步：選擇日期 -->
+            <section id="view-date">
+                <div class="flex justify-center items-center mb-5 font-bold text-base text-stone-700">
+                    <div id="month-title">2026 / 11</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-stone-400 mb-2 font-semibold uppercase">
+                    <div class="text-rose-400">SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div class="text-rose-400">SAT</div>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-sm"></div>
+            </section>
 
-            <button onclick="submitReservation()" class="w-full btn-main py-4 font-bold text-sm hover:opacity-90 transition-opacity">確認預約並跳轉 Line</button>
-        </section>
-    </main>
+            <!-- 第二步：選擇時段 -->
+            <section id="view-time" class="hidden">
+                <div class="flex justify-between items-baseline mb-1">
+                    <h3 class="text-sm font-bold text-stone-700">選擇時段</h3>
+                    <span id="service-hint-text" class="text-rose-500 text-[10px] font-medium hidden">★ 新中式款僅限 14:30 前</span>
+                </div>
+                <p id="time-hint" class="text-xs text-stone-400 mb-5"></p>
+                <div id="time-grid" class="grid grid-cols-3 gap-2.5 mb-6"></div>
+                <div class="flex justify-between items-center pt-2">
+                    <button onclick="goTo('date')" class="text-xs text-stone-400 underline hover:text-stone-700">← 重選日期</button>
+                    <button id="next-btn" onclick="goTo('info')" class="btn-main px-8 py-2.5 text-xs font-bold disabled:opacity-30" disabled>下一步</button>
+                </div>
+            </section>
 
-    <!-- Custom Alert Modal -->
+            <!-- 第三步：填寫資料 -->
+            <section id="view-info" class="hidden">
+                <div class="bg-stone-50 p-3.5 rounded-2xl mb-5 border border-stone-100">
+                    <p class="text-[10px] text-stone-400 uppercase tracking-wider mb-0.5">已選時間</p>
+                    <p id="final-dt" class="font-bold text-stone-700 text-sm"></p>
+                </div>
+
+                <div class="space-y-4 mb-5">
+                    <input type="text" id="cust-name" placeholder="請輸入姓名" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none focus:border-stone-500">
+                    <input type="text" id="cust-bday" placeholder="生日 (例：1995/08/13)" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none focus:border-stone-500">
+                </div>
+
+                <div class="mb-5">
+                    <select id="cust-service" onchange="checkServiceTime()" class="w-full border-b border-stone-200 bg-transparent py-2 text-sm focus:outline-none cursor-pointer text-stone-700">
+                        <option>經典單根</option>
+                        <option>柔密款</option>
+                        <option>設計款</option>
+                        <option>新中式美睫設計款</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2 mb-6 text-xs">
+                    <label class="flex items-center p-3 border border-stone-100 rounded-xl cursor-pointer hover:bg-stone-50">
+                        <input type="checkbox" value="下睫毛" class="cust-extra rounded text-stone-600 mr-2.5"> 
+                        <span class="text-stone-700">下睫毛</span>
+                    </label>
+                    <label class="flex justify-between items-center p-3 border border-stone-100 rounded-xl cursor-pointer hover:bg-stone-50">
+                        <div class="flex items-center">
+                            <input type="checkbox" value="本店卸除" class="cust-extra rounded text-stone-600 mr-2.5"> 
+                            <span class="text-stone-700">本店卸除</span>
+                        </div>
+                        <span class="text-stone-600 font-medium">$200</span>
+                    </label>
+                    <label class="flex justify-between items-center p-3 border border-stone-100 rounded-xl cursor-pointer hover:bg-stone-50">
+                        <div class="flex items-center">
+                            <input type="checkbox" value="本店卸除重接" class="cust-extra rounded text-stone-600 mr-2.5"> 
+                            <span class="text-stone-700">本店卸除重接</span>
+                        </div>
+                        <span class="text-stone-400">Free</span>
+                    </label>
+                    <label class="flex justify-between items-center p-3 border border-stone-100 rounded-xl cursor-pointer hover:bg-stone-50">
+                        <div class="flex items-center">
+                            <input type="checkbox" value="他店卸除" class="cust-extra rounded text-stone-600 mr-2.5"> 
+                            <span class="text-stone-700">他店卸除</span>
+                        </div>
+                        <span class="text-stone-600 font-medium">$400</span>
+                    </label>
+                    <label class="flex justify-between items-center p-3 border border-stone-100 rounded-xl cursor-pointer hover:bg-stone-50">
+                        <div class="flex items-center">
+                            <input type="checkbox" value="他店卸除重接" class="cust-extra rounded text-stone-600 mr-2.5"> 
+                            <span class="text-stone-700">他店卸除重接</span>
+                        </div>
+                        <span class="text-stone-600 font-medium">$300</span>
+                    </label>
+                </div>
+                
+                <div class="text-[11px] text-rose-500 bg-rose-50 p-3 rounded-xl mb-5 text-center leading-relaxed font-semibold">
+                    點擊後將自動複製預約訊息，<br>跳轉至官方Line後，記得「貼上並送出」，<br>收到我的回覆才算預約成功喔！
+                </div>
+
+                <button onclick="submitReservation()" class="w-full btn-main py-3.5 font-bold text-xs tracking-wider shadow-sm">確認預約並跳轉 Line</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- 自訂提示視窗 -->
     <div id="custom-alert" class="fixed inset-0 flex items-center justify-center bg-black/40 z-50 hidden p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-xl border border-stone-100">
-            <h3 class="text-stone-800 font-bold text-base mb-4">預約提示</h3>
-            <p id="alert-message" class="text-stone-600 text-sm leading-relaxed mb-6"></p>
-            <button id="alert-confirm" class="w-full btn-main py-3 font-semibold text-xs tracking-wider">確定</button>
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 text-center shadow-xl">
+            <h3 class="text-stone-800 font-bold text-sm mb-2">預約提示</h3>
+            <p id="alert-message" class="text-stone-600 text-xs leading-relaxed mb-5"></p>
+            <button id="alert-confirm" class="w-full btn-main py-2.5 font-semibold text-xs tracking-wider">確定</button>
         </div>
     </div>
 
     <script>
-        // 設定 2026 年 11 月 (月份索引 10)
         const state = { y: 2026, m: 10, d: null, t: null }; 
-        
-        // 當前基準日期：2026/11/04（當天及之前的日期一律自動關閉）
-        const TODAY_STR = "2026-11-04";
+        // 恢復至 2026/11/06 之前的基準點設定
+        const TODAY_STR = "2026-11-05";
 
-        // 全天關閉的日期設定 (11月份)
+        // 恢復原始 11 月休假日清單 (不含 11/7, 11/8 全天強制關閉)
         const OFF = [
-            "2026-11-01", "2026-11-02", "2026-11-04", "2026-11-05", "2026-11-06",
-            "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15",
-            "2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25", "2026-11-27"
+            "2026-11-01", "2026-11-02", "2026-11-04", "2026-11-05",
+            "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13",
+            "2026-11-14", "2026-11-15", "2026-11-18", "2026-11-19", "2026-11-20",
+            "2026-11-21", "2026-11-22", "2026-11-23", "2026-11-24", "2026-11-25",
+            "2026-11-27"
         ];
         
-        // 特定日期局部關閉的時段設定
         const DISABLED_SLOTS = {};
 
         window.onload = function() {
@@ -208,7 +367,7 @@
                     slot.innerText = time;
                 } else {
                     const isSelected = state.t === time;
-                    slot.className = `time-slot ${isSelected ? 'selected' : 'hover:border-stone-400'}`;
+                    slot.className = `time-slot ${isSelected ? 'selected' : 'hover:border-stone-400 bg-white'}`;
                     slot.innerText = time;
                     slot.onclick = () => {
                         state.t = time;
@@ -243,9 +402,9 @@
             ['date', 'time', 'info'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
             document.getElementById(`view-${view}`).classList.remove('hidden');
             
-            ['nav-1', 'nav-2', 'nav-3'].forEach(n => document.getElementById(n).className = 'pb-1');
+            ['nav-1', 'nav-2', 'nav-3'].forEach(n => document.getElementById(n).className = 'pb-1 cursor-pointer');
             const navIndex = view === 'date' ? 1 : view === 'time' ? 2 : 3;
-            document.getElementById(`nav-${navIndex}`).className = 'step-active pb-1';
+            document.getElementById(`nav-${navIndex}`).className = 'step-active pb-1 cursor-pointer';
 
             if (view === 'info') {
                 document.getElementById('final-dt').innerText = `${state.d} ${state.t}`;
